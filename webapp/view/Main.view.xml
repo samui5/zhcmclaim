@@ -1,0 +1,48 @@
+<mvc:View controllerName="hcm.claim.controller.Main" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc"
+	displayBlock="true" xmlns="sap.m">
+	<App>
+		<pages>
+			<Page title="{i18n>title}">
+				<content>
+					<!--<List items="{/ClaimSet}">-->
+					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->
+					<!--</List>-->
+					<!--<List items="{/ValueHelpSet}">-->
+					<!--	<DisplayListItem label="{Text}" value="{Key}"></DisplayListItem>-->
+					<!--</List>-->
+					<Table items="{local>/tableData}">
+						<headerToolbar>
+							<Toolbar>
+								<ToolbarSpacer />
+								<Button text="Add" press="onAddRow"></Button>
+							</Toolbar>
+						</headerToolbar>
+						<columns>
+							<Column header="">
+								<Text text = "Claimno"></Text>
+							</Column>
+							<Column header="Pernr"></Column>
+							<Column header="Seqnr"></Column>
+							<Column header=""></Column>
+							<Column header=""></Column>
+							<Column header=""></Column>
+						</columns>
+						<items>
+							<ColumnListItem>
+								<cells>
+									<Text text="{Claimno}" />
+									<Text text="{Pernr}" />
+									<Text text="{Seqnr}" />
+									<Text text="" />
+									<Text text="" />
+									<Text text="" />
+									<Text text="" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</content>
+			</Page>
+		</pages>
+	</App>
+</mvc:View>
