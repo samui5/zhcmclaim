@@ -1,0 +1,22 @@
+{
+	"tableData": [
+
+	],
+	"record": {
+		"Claimno": "",
+		"Pernr": "00000000",
+		"Seqnr": "000",
+		"Docstat": "",
+		"Createdate": "",
+		"ClaimValue": "0.00",
+		"Wagetype": "",
+		"ClaimDate": "",
+		"TimeStart": "",
+		"TimeEnd": "",
+		"Status": "",
+		"Purpose": "",
+		"Destination": "",
+		"Total": "0.00"
+	}
+
+}

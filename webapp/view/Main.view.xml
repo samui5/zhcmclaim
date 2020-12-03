@@ -1,5 +1,5 @@
-<mvc:View controllerName="hcm.claim.controller.Main" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:mvc="sap.ui.core.mvc"
-	displayBlock="true" xmlns="sap.m">
+<mvc:View controllerName="hcm.claim.controller.Main" xmlns:core="sap.ui.core" xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m" xmlns:f="sap.ui.layout.form">
 	<App>
 		<pages>
 			<Page title="{i18n>title}">
@@ -7,41 +7,89 @@
 					<!--<List items="{/ClaimSet}">-->
 					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->
 					<!--</List>-->
-					<!--<List items="{/ValueHelpSet}">-->
-					<!--	<DisplayListItem label="{Text}" value="{Key}"></DisplayListItem>-->
-					<!--</List>-->
-					<Table items="{local>/tableData}">
+					<VBox class="sapUiMediumMargin" alignItems="Center" direction="Column" fitContainer="true" width="100%" height="20%" justifyContent="Center"
+						renderType="Div" visible="true" displayInline="false">
+						<items>
+							<f:SimpleForm>
+								<f:content>
+									<Label text="Employee Id"></Label>
+									<Text text=""></Text>
+								</f:content>
+							</f:SimpleForm>
+						</items>
+					</VBox>
+					<Table items="{local>/tableData}" fixedLayout="false" noDataText="Add Items..." mode="MultiSelect">
 						<headerToolbar>
 							<Toolbar>
-								<ToolbarSpacer />
-								<Button text="Add" press="onAddRow"></Button>
+								<ToolbarSpacer/>
+								<Button text="Add" icon="sap-icon://add" press="onAddRow" type="Accept"></Button>
+								<Button text="Delete" icon="sap-icon://delete" press="onDeleteRow" type="Reject"></Button>
 							</Toolbar>
 						</headerToolbar>
 						<columns>
-							<Column header="">
-								<Text text = "Claimno"></Text>
+							<Column>
+								<Text text="{i18n>WageType}"></Text>
 							</Column>
-							<Column header="Pernr"></Column>
-							<Column header="Seqnr"></Column>
-							<Column header=""></Column>
-							<Column header=""></Column>
-							<Column header=""></Column>
+							<Column>
+								<Text text="{i18n>Amount}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>CreateDate}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>StartTime}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>EndTime}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>Status}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>Purpose}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>Destination}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>TotalAmount}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>Attachment}"></Text>
+							</Column>
 						</columns>
 						<items>
 							<ColumnListItem>
 								<cells>
-									<Text text="{Claimno}" />
-									<Text text="{Pernr}" />
-									<Text text="{Seqnr}" />
-									<Text text="" />
-									<Text text="" />
-									<Text text="" />
-									<Text text="" />
+									<Select selectedKey="{local>Wagetype}">
+										<core:Item key="covering forlift" text="Covering Forlift"/>
+										<core:Item key="hardship" text="Hardship"/>
+									</Select>
+									<Input value="{local>ClaimValue}"/>
+									<DatePicker value="{path:'local>Createdate'}" valueFormat="dd-MM-yyyy" displayFormat="dd-MM-yyyy" enabled="false"/>
+									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="HH:mm" change="handleChange" placeholder="Start time"/>
+									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="HH:mm" change="handleChange" placeholder="End time"/>
+									<Select selectedKey="{local>Status}">
+										<core:Item key="S" text="Send"/>
+										<core:Item key="V" text="Verify"/>
+										<core:Item key="A" text="Approve"/>
+										<core:Item key="R" text="Rejected"/>
+									</Select>
+									<Input value="{local>Purpose}" enabled="{=${local>Wagetype}==='Hardship' ? true : false}"/>
+									<Input value="{local>Destination}" enabled="{=${local>Wagetype}==='Hardship' ? true : false}"/>
+									<Input value="{local>Total}"/>
+									<Input></Input>
 								</cells>
 							</ColumnListItem>
 						</items>
 					</Table>
 				</content>
+				<footer>
+					<Toolbar>
+						<ToolbarSpacer/>
+						<Button id="idonSave" type="Emphasized" text="{i18n>Save}" press="onSave" width="5cm" enabled="false"></Button>
+					</Toolbar>
+				</footer>
 			</Page>
 		</pages>
 	</App>

@@ -78,6 +78,12 @@
 				},
 				"dataSource": "ZHCM_CLAIM_SRV",
 				"preload": true
+			},
+			"local": {
+				"type": "sap.ui.model.json.JSONModel",
+				"settings": {},
+				"preload": true,
+				"uri": "model/mockData.json"
 			}
 		},
 		"resources": {
