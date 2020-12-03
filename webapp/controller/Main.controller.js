@@ -47,6 +47,41 @@ sap.ui.define([
 			aItems.push(record);
 			this.getView().getModel("local").setProperty("/tableData", aItems);
 		},
+		onSave: function(){
+			var payload = {
+							"Claimno": "blank",   //same
+							"Pernr": "00000000",  //same
+							"Cmonth": "",  //dropdown
+							"Cyear": "",   //dropdown
+							"Docstat": "",  //blank
+							"Total": "0.00", //blank
+							"To_Items": [{
+								"Claimno": "",  //blank
+								"Pernr": "00000000",  //blank
+								"Seqnr": "000", //blank
+								"Createdate": "/Date(1606953600000)/", //blank
+								"Wagetype": "", //screen - table
+								"TimeStart": "", //screen - table
+								"TimeEnd": "", //screen - table
+								"Status": "", //blank
+								"Purpose": "", //screen - table
+								"Destination": "", //screen - table
+								"Total": "0.00", ////screen - table
+								"ClaimAmount": "0.00", //screen - table
+								"To_Attachments": [
+						
+								]
+							}]
+						};
+				this.oDataModel.create("/ClaimSet", payload,{
+					success: function(){
+						
+					},
+					error: function(){
+						
+					}
+				});
+		},
 		onDeleteRow: function(oEvent) {
 			var map = new Map();
 			var sPaths = oEvent.getSource().getParent().getParent().getSelectedContextPaths();
