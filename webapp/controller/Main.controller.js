@@ -98,6 +98,35 @@ sap.ui.define([
 				}
 			});
 		},
+		onUploadChange: function(oEvent) {
+			debugger;
+			var files = oEvent.getParameter("files");
+			var that = this;
+			if (!files.length) {
+
+			} else {
+				for (let i = 0; i < files.length; i++) {
+					var reader = new FileReader();
+					reader.onload = function(e){
+						try {
+							var vContent = e.currentTarget.result; //.result.replace("data:image/jpeg;base64,", "");
+							console.log(vContent);
+						} catch (e) {
+
+						}
+					};
+					// var img = {
+					// 	"Claimno" : "000000",
+					// 	"Pernr" : "0000",
+					// 	"Seqnr" : "000",
+					// 	"Type" : "document-pdf",
+					// 	"Content" : vContent
+					// };
+					reader.readAsDataURL(files[i]);
+					
+				}
+			}
+		},
 		onDeleteRow: function(oEvent) {
 			var map = new Map();
 			var sPaths = oEvent.getSource().getParent().getParent().getSelectedContextPaths();

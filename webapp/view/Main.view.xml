@@ -1,5 +1,5 @@
 <mvc:View controllerName="hcm.claim.controller.Main" xmlns:core="sap.ui.core" xmlns:html="http://www.w3.org/1999/xhtml"
-	xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m" xmlns:f="sap.ui.layout.form">
+	xmlns:mvc="sap.ui.core.mvc" xmlns:unified="sap.ui.unified" displayBlock="true" xmlns="sap.m" xmlns:f="sap.ui.layout.form">
 	<App>
 		<pages>
 			<Page title="{i18n>title}">
@@ -81,7 +81,8 @@
 										text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>State', formatter : '.formatter.statusState'}"/>
 									<Input value="{local>ClaimValue}"/>
 									<Input value="{local>Total}"/>
-									<Input></Input>
+									<unified:FileUploader name="myFileUpload" fileType='pdf, doc' multiple="false" change="onUploadChange"
+										tooltip="Upload your file to the local system"/>
 								</cells>
 							</ColumnListItem>
 						</items>
