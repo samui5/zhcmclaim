@@ -59,9 +59,6 @@
 								<Text text="{i18n>ClaimAmount}"></Text>
 							</Column>
 							<Column>
-								<Text text="{i18n>TotalAmount}"></Text>
-							</Column>
-							<Column>
 								<Text text="{i18n>Attachment}"></Text>
 							</Column>
 						</columns>
@@ -80,7 +77,6 @@
 									<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"
 										text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>State', formatter : '.formatter.statusState'}"/>
 									<Input value="{local>ClaimValue}"/>
-									<Input value="{local>Total}"/>
 									<unified:FileUploader name="myFileUpload" fileType='pdf, doc' multiple="false" change="onUploadChange"
 										tooltip="Upload your file to the local system"/>
 								</cells>
