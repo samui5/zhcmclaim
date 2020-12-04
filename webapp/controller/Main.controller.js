@@ -59,7 +59,7 @@ sap.ui.define([
 				"Pernr": "00000000", //same
 				"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
 				"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
-				"Docstat": "", //blank
+				"Docstat": "0", //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
 				"Total": "0.00", //blank
 				"To_Items": []
 			};

@@ -7,8 +7,9 @@ sap.ui.define([
 			statusText : function(num){
 				var text = {
 					0 : "Draft",
-					1 : "Approved",
-					2 : "Rejected"
+					1 : "Submitted",
+					2 : "Approved",
+					3 : "Rejected"
 				};
 				return text[num];
 			},
