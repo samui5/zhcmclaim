@@ -74,7 +74,7 @@ sap.ui.define([
 					"Claimno": "", //blank
 					"Pernr": "00000000", //blank
 					"Seqnr": "000", //blank
-					"Createdate": item.Createdate, //blank
+					"Createdate": new Date(item.Createdate), //blank
 					"Wagetype": item.Wagetype, //screen - table
 					"TimeStart": item.TimeStart, //screen - table
 					"TimeEnd": item.TimeEnd, //screen - table

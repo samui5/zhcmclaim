@@ -16,11 +16,11 @@
 						</f:toolbar>
 						<f:content>
 							<Label text="Month"/>
-							<Select id="idMonth" selectedKey="{local>/selected/month}" items="{local>/calendar/months}" width="25%">
+							<Select id="idMonth" items="{local>/calendar/months}" width="25%">
 								<core:Item key="{local>abbreviation}" text="{local>name}"/>
 							</Select>
 							<Label text="Year"></Label>
-							<Select id="idYear" selectedKey="{local>/selected/year}" width="25%" items="{local>/calendar/years}">
+							<Select id="idYear" width="25%" items="{local>/calendar/years}">
 								<core:Item key="{local>year}" text="{local>year}"/>
 							</Select>
 						</f:content>

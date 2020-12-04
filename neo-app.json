@@ -23,7 +23,7 @@
       "path": "/sap/opu/odata",
       "target": {
         "type": "destination",
-        "name": "SD4",
+        "name": "S4D",
         "entryPath": "/sap/opu/odata"
       },
       "description": "S/4HANA 1809 server"
