@@ -20,51 +20,43 @@
 	},
 	"calendar": {
 		"months": [{
-			"abbreviation": "Jan",
+			"abbreviation": "01",
 			"name": "January"
 		}, {
-			"abbreviation": "Feb",
+			"abbreviation": "02",
 			"name": "February"
 		}, {
-			"abbreviation": "Mar",
+			"abbreviation": "03",
 			"name": "March"
 		}, {
-			"abbreviation": "Apr",
+			"abbreviation": "04",
 			"name": "April"
 		}, {
-			"abbreviation": "May",
+			"abbreviation": "05",
 			"name": "May"
 		}, {
-			"abbreviation": "Jun",
+			"abbreviation": "06",
 			"name": "June"
 		}, {
-			"abbreviation": "Jul",
+			"abbreviation": "07",
 			"name": "July"
 		}, {
-			"abbreviation": "Aug",
+			"abbreviation": "08",
 			"name": "August"
 		}, {
-			"abbreviation": "Sep",
+			"abbreviation": "09",
 			"name": "September"
 		}, {
-			"abbreviation": "Oct",
+			"abbreviation": "10",
 			"name": "October"
 		}, {
-			"abbreviation": "Nov",
+			"abbreviation": "11",
 			"name": "November"
 		}, {
-			"abbreviation": "Dec",
+			"abbreviation": "12",
 			"name": "December"
 		}],
-		"years": [{
-			"year": 2019
-		}, {
-			"year": 2020
-		}, {
-			"year": 2021
-		}, {
-			"year": 2022
-		}]
+		"years": []
 	}
 
 }

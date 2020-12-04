@@ -7,30 +7,24 @@
 					<!--<List items="{/ClaimSet}">-->
 					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->
 					<!--</List>-->
-					<!--<VBox class="sapUiMediumMargin" alignItems="Center" width="100%" direction="Column" fitContainer="true" -->
-					<!--	renderType="Div" visible="true" displayInline="true">-->
-					<!--	<items>-->
-					<f:SimpleForm class="sapUiMediumMargin">
+					<f:SimpleForm class="sapUiSmallMargin" editable="true">
 						<f:toolbar>
 							<Toolbar id="TB1">
-								<Title id="Title1" text="Employee Id: " level="H4" titleStyle="H4"/>
+								<Title id="Title1" text="Personnel No.: {local>/empId}" level="H3" titleStyle="H4"/>
 								<ToolbarSpacer/>
 							</Toolbar>
 						</f:toolbar>
 						<f:content>
-							<Label/><Text/>
 							<Label text="Month"/>
-							<Select selectedKey="{}" items="{local>/calendar/months}" width="25%">
-								<core:Item key="{local>name}" text="{local>name}"/>
+							<Select id="idMonth" selectedKey="{local>/selected/month}" items="{local>/calendar/months}" width="25%">
+								<core:Item key="{local>abbreviation}" text="{local>name}"/>
 							</Select>
 							<Label text="Year"></Label>
-							<Select selectedKey="" width="25%" items="{local>/calendar/years}">
+							<Select id="idYear" selectedKey="{local>/selected/year}" width="25%" items="{local>/calendar/years}">
 								<core:Item key="{local>year}" text="{local>year}"/>
 							</Select>
 						</f:content>
 					</f:SimpleForm>
-					<!--	</items>-->
-					<!--</VBox>-->
 					<Table items="{local>/tableData}" fixedLayout="false" noDataText="Add Items..." mode="MultiSelect">
 						<headerToolbar>
 							<Toolbar>
@@ -44,9 +38,6 @@
 								<Text text="{i18n>WageType}"></Text>
 							</Column>
 							<Column>
-								<Text text="{i18n>Amount}"></Text>
-							</Column>
-							<Column>
 								<Text text="{i18n>CreateDate}"></Text>
 							</Column>
 							<Column>
@@ -56,13 +47,16 @@
 								<Text text="{i18n>EndTime}"></Text>
 							</Column>
 							<Column>
-								<Text text="{i18n>Status}"></Text>
-							</Column>
-							<Column>
 								<Text text="{i18n>Purpose}"></Text>
 							</Column>
 							<Column>
 								<Text text="{i18n>Destination}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>Status}"></Text>
+							</Column>
+							<Column>
+								<Text text="{i18n>ClaimAmount}"></Text>
 							</Column>
 							<Column>
 								<Text text="{i18n>TotalAmount}"></Text>
@@ -75,21 +69,17 @@
 							<ColumnListItem>
 								<cells>
 									<Select selectedKey="{local>Wagetype}">
-										<core:Item key="covering forlift" text="Covering Forlift"/>
-										<core:Item key="hardship" text="Hardship"/>
+										<core:Item key="C" text="Covering Forlift"/>
+										<core:Item key="H" text="Hardship"/>
 									</Select>
+									<DatePicker value="{path:'local>Createdate'}" valueFormat="dd.MM.yyyy" displayFormat="dd.MM.yyyy" enabled="true"/>
+									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="hh:mm a" change="handleChange" placeholder="Start time"/>
+									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="hh:mm a" change="handleChange" placeholder="End time"/>
+									<Input value="{local>Purpose}" enabled="{=${local>Wagetype}==='H' ? true : false}"/>
+									<Input value="{local>Destination}" enabled="{=${local>Wagetype}==='H' ? true : false}"/>
+									<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"
+										text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>State', formatter : '.formatter.statusState'}"/>
 									<Input value="{local>ClaimValue}"/>
-									<DatePicker value="{path:'local>Createdate'}" valueFormat="dd-MM-yyyy" displayFormat="dd-MM-yyyy" enabled="false"/>
-									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="HH:mm" change="handleChange" placeholder="Start time"/>
-									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="HH:mm" change="handleChange" placeholder="End time"/>
-									<Select selectedKey="{local>Status}">
-										<core:Item key="S" text="Send"/>
-										<core:Item key="V" text="Verify"/>
-										<core:Item key="A" text="Approve"/>
-										<core:Item key="R" text="Rejected"/>
-									</Select>
-									<Input value="{local>Purpose}" enabled="{=${local>Wagetype}==='Hardship' ? true : false}"/>
-									<Input value="{local>Destination}" enabled="{=${local>Wagetype}==='Hardship' ? true : false}"/>
 									<Input value="{local>Total}"/>
 									<Input></Input>
 								</cells>
@@ -100,7 +90,7 @@
 				<footer>
 					<Toolbar>
 						<ToolbarSpacer/>
-						<Button id="idonSave" type="Emphasized" text="{i18n>Save}" press="onSave" width="5cm" enabled="false"></Button>
+						<Button id="idonSave" type="Emphasized" text="{i18n>Save}" press="onSave" width="5cm" enabled="true"></Button>
 					</Toolbar>
 				</footer>
 			</Page>

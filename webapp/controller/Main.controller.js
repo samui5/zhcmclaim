@@ -1,27 +1,32 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
-	"sap/ui/model/json/JSONModel"
-], function(Controller, JSONModel) {
+	"sap/ui/model/json/JSONModel",
+	"hcm/claim/util/formatter"
+], function(Controller, JSONModel, formatter) {
 	"use strict";
 	return Controller.extend("hcm.claim.controller.Main", {
 		onInit: function() {
-			// this.oLocalModel = new JSONModel({
-			// 	tableData : [],
-			// 	screenFields:{
-			// 		"Month": "",
-			// 		"Year": "",
-			// 		"Text": ""
-			// 	}
-			// });
-			// this.getView().setModel(this.oLocalModel, "local");
-			this.oDataModel = this.getView().getModel();
-			// var that = this;
-			// this.oDataModel.read("/ClaimSet",{
-			// 	success: function(data){
-			// 		that.     
-			// 		that.oLocalModel.setProperty("/tableData", aItems);
-			// 	}
-			// });
+			var that = this;
+			this.oDataModel = this.getOwnerComponent().getModel();
+			this.oLocalModel = this.getOwnerComponent().getModel("local");
+			this.oResource = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+			var currentYear = (new Date()).getFullYear();
+			var yearList = [];
+			for (var i = 0; i < 20; i++) {
+				yearList.push({
+					year: currentYear - i
+				});
+			}
+			this.oDataModel.read("/ValueHelpSet", {
+				success: function(data) {
+					that.oLocalModel.setProperty("/empId", data.results[0].Text);
+					that.oLocalModel.setProperty("/calendar/years", yearList);
+				}
+			});
+		},
+		formatter: formatter,
+		_onRouteMatched: function() {
+
 		},
 		onAddRow: function() {
 			var date = new Date();
@@ -33,54 +38,65 @@ sap.ui.define([
 				"Docstat": "",
 				"Createdate": "",
 				"ClaimValue": "0.00",
-				"Wagetype": "",
+				"Wagetype": "C",
 				"ClaimDate": "",
-				"TimeStart": "",
-				"TimeEnd": "",
-				"Status": "",
+				"TimeStart": "00:00",
+				"TimeEnd": (date.getHours()) + ":" + date.getMinutes(),
+				"Status": "0",
 				"Purpose": "",
 				"Destination": "",
 				"Total": "0.00"
 			};
-			record.Createdate = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+			record.Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 			var aItems = this.getView().getModel("local").getProperty("/tableData");
 			aItems.push(record);
 			this.getView().getModel("local").setProperty("/tableData", aItems);
 		},
-		onSave: function(){
+		onSave: function() {
+			var that = this;
 			var payload = {
-							"Claimno": "blank",   //same
-							"Pernr": "00000000",  //same
-							"Cmonth": "",  //dropdown
-							"Cyear": "",   //dropdown
-							"Docstat": "",  //blank
-							"Total": "0.00", //blank
-							"To_Items": [{
-								"Claimno": "",  //blank
-								"Pernr": "00000000",  //blank
-								"Seqnr": "000", //blank
-								"Createdate": "/Date(1606953600000)/", //blank
-								"Wagetype": "", //screen - table
-								"TimeStart": "", //screen - table
-								"TimeEnd": "", //screen - table
-								"Status": "", //blank
-								"Purpose": "", //screen - table
-								"Destination": "", //screen - table
-								"Total": "0.00", ////screen - table
-								"ClaimAmount": "0.00", //screen - table
-								"To_Attachments": [
-						
-								]
-							}]
-						};
-				this.oDataModel.create("/ClaimSet", payload,{
-					success: function(){
-						
-					},
-					error: function(){
-						
-					}
+				"Claimno": "blank", //same
+				"Pernr": "00000000", //same
+				"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
+				"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
+				"Docstat": "", //blank
+				"Total": "0.00", //blank
+				"To_Items": []
+			};
+			var itemsPayload = [];
+			var items = this.getView().getModel("local").getProperty("/tableData");
+			items.forEach(function(item) {
+				if (item.Wagetype === "C") {
+					item.Purpose = "";
+					item.Destination = "";
+				}
+				itemsPayload.push({
+					"Claimno": "", //blank
+					"Pernr": "00000000", //blank
+					"Seqnr": "000", //blank
+					"Createdate": item.Createdate, //blank
+					"Wagetype": item.Wagetype, //screen - table
+					"TimeStart": item.TimeStart, //screen - table
+					"TimeEnd": item.TimeEnd, //screen - table
+					"Status": item.Status, //blank
+					"Purpose": item.Purpose, //screen - table
+					"Destination": item.Destination, //screen - table
+					"Total": item.Total, ////screen - table
+					"ClaimAmount": item.ClaimAmount, //screen - table
+					"To_Attachments": [
+
+					]
 				});
+			});
+			payload.To_Items = itemsPayload;
+			this.oDataModel.create("/ClaimSet", payload, {
+				success: function() {
+					sap.m.MessageToast.show(that.oResource.getText("Success"));
+				},
+				error: function() {
+					sap.m.MessageToast.show(that.oResource.getText("Error"));
+				}
+			});
 		},
 		onDeleteRow: function(oEvent) {
 			var map = new Map();
@@ -90,7 +106,6 @@ sap.ui.define([
 			records.forEach(function(item, index) {
 				map.set(index.toString(), item);
 			});
-			var newRecords = [];
 			sPaths.forEach(function(item) {
 				map.delete(item.match(/\d/g)[0]);
 			});
