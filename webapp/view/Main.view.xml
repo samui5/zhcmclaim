@@ -7,13 +7,12 @@
 					<!--<List items="{/ClaimSet}">-->
 					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->
 					<!--</List>-->
-					<f:SimpleForm class="sapUiSmallMargin" editable="true">
-						<f:toolbar>
-							<Toolbar id="TB1">
-								<Title id="Title1" text="Personnel No.: {local>/empId}" level="H3" titleStyle="H4"/>
-								<ToolbarSpacer/>
-							</Toolbar>
-						</f:toolbar>
+					<ObjectHeader title="Personnel No.: {local>/empId}" number="" intro="CLAIM NO:XXXXXXX" numberUnit="Draft">
+						<firstStatus>
+							<ObjectStatus text="Draft" state="Success"></ObjectStatus>
+						</firstStatus>
+					</ObjectHeader>
+					<f:SimpleForm editable="true">
 						<f:content>
 							<Label text="Month"/>
 							<Select id="idMonth" items="{local>/calendar/months}" width="25%">
@@ -87,7 +86,8 @@
 				<footer>
 					<Toolbar>
 						<ToolbarSpacer/>
-						<Button id="idonSave" type="Emphasized" text="{i18n>Save}" press="onSave" width="5cm" enabled="true"></Button>
+						<Button id="idonSave" type="Emphasized" text="{i18n>Save}" press="onSave" enabled="true"></Button>
+						<Button id="idonSubmit" type="Emphasized" text="{i18n>Submit}" press="onSubmit" enabled="false"></Button>
 					</Toolbar>
 				</footer>
 			</Page>
