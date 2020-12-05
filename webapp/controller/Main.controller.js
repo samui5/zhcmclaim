@@ -21,11 +21,11 @@ sap.ui.define([
 				success: function(data) {
 					that.oLocalModel.setProperty("/empId", data.results[0].Text);
 					that.oLocalModel.setProperty("/calendar/years", yearList);
-					var header = {
-						Pernr: "",
-						Docstat: ""
-					};
-					that.getView().getModel("local").setProperty("/header", header);
+					// var header = {
+					// 	Pernr: "",
+					// 	Docstat: ""
+					// };
+					// that.getView().getModel("local").setProperty("/header", header);
 				},
 				error: function(err) {
 					sap.m.MessageToast.show("Loading failed " + err);
@@ -41,12 +41,8 @@ sap.ui.define([
 			var date = new Date();
 			// var record = this.getView().getModel("local").getProperty("/record");
 			var record = {
-				"Claimno": "",
-				"Pernr": "",
-				"Seqnr": "000",
-				"Docstat": "",
 				"Createdate": "",
-				"ClaimValue": "0.00",
+				"ClaimAmount": "0.00",
 				"Wagetype": "C",
 				"ClaimDate": "",
 				"TimeStart": "00:00",
@@ -54,7 +50,7 @@ sap.ui.define([
 				"Status": "0",
 				"Purpose": "",
 				"Destination": "",
-				"Total": "0.00",
+				"Comments": "",
 				"To_Attachments": []
 			};
 			record.Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
@@ -72,8 +68,6 @@ sap.ui.define([
 			var that = this;
 			var header = this.getView().getModel("local").getProperty("/header");
 			var payload = {
-				"Claimno": "blank", //same
-				"Pernr": header.Pernr, //same
 				"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
 				"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
 				"Docstat": header.Docstat, //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
@@ -88,9 +82,6 @@ sap.ui.define([
 					item.Destination = "";
 				}
 				itemsPayload.push({
-					"Claimno": "", //blank
-					"Pernr": "", //blank
-					"Seqnr": "000", //blank
 					"Createdate": new Date(item.Createdate), //blank
 					"Wagetype": item.Wagetype, //screen - table
 					"TimeStart": item.TimeStart, //screen - table
@@ -98,7 +89,6 @@ sap.ui.define([
 					"Status": item.Status, //blank
 					"Purpose": item.Purpose, //screen - table
 					"Destination": item.Destination, //screen - table
-					"Total": item.Total, ////screen - table
 					"ClaimAmount": item.ClaimAmount, //screen - table
 					"To_Attachments": []
 				});
@@ -109,6 +99,7 @@ sap.ui.define([
 					header = {
 						Pernr: data.Pernr,
 						Claimno: data.Claimno,
+						Claimid: data.Claimid,
 						Docstat: data.Docstat === "" ? "0" : data.Docstat
 					};
 					that.getView().getModel("local").setProperty("/header", header);
@@ -132,15 +123,9 @@ sap.ui.define([
 			var payload = {
 				Docstat: "1"
 			};
-			this.oDataModel.update("/ClaimSet('" + header.Claimno + "','" + header.Pernr + "')", payload, {
-				mehode: "PUT",
+			this.oDataModel.update("/ClaimSet('" + header.Claimid + "')", payload, {
 				success: function(data) {
-					header = {
-						Claimno: data.Claimno,
-						Pernr: data.Pernr,
-						Docstat: data.Docstat
-					};
-					that.getView().getModel("local").setProperty("/header", header);
+					that.getView().getModel("local").setProperty("/header/Docstat", "1");
 					that.getView().byId("idonSave").setEnabled(false);
 					that.getView().byId("idonSubmit").setEnabled(false);
 					sap.m.MessageToast.show(that.oResource.getText("Success"));

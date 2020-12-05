@@ -7,7 +7,7 @@
 					<!--<List items="{/ClaimSet}">-->
 					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->
 					<!--</List>-->
-					<ObjectHeader title="Personnel No.: {local>/empId}" number="Status" intro="CLAIM NO: {local>/header/Pernr}"
+					<ObjectHeader title="CLAIM NO: {local>/header/Claimno}" number="Status" intro="Personnel No.: {local>/empId}"
 						numberUnit="{path:'local>/header/Docstat', formatter : '.formatter.statusText'}"
 						icon="{path:'local>/header/Docstat', formatter : '.formatter.statusIcon'}"
 						numberState="{path:'local>/header/Docstat', formatter : '.formatter.statusState'}">
@@ -19,11 +19,11 @@
 					<f:SimpleForm editable="true">
 						<f:content>
 							<Label text="Month"/>
-							<Select id="idMonth" items="{local>/calendar/months}" width="25%" enabled="{=${local>/header/Docstat}===''}">
+							<Select id="idMonth" items="{local>/calendar/months}" width="25%" enabled="{=${local>/header/Docstat}==='0'}">
 								<core:Item key="{local>abbreviation}" text="{local>name}"/>
 							</Select>
 							<Label text="Year"></Label>
-							<Select id="idYear" width="25%" items="{local>/calendar/years}" enabled="{=${local>/header/Docstat}===''}">
+							<Select id="idYear" width="25%" items="{local>/calendar/years}" enabled="{=${local>/header/Docstat}==='0'}">
 								<core:Item key="{local>year}" text="{local>year}"/>
 							</Select>
 						</f:content>
@@ -84,7 +84,7 @@
 									<Input value="{local>Destination}" enabled="{=${local>Wagetype}==='H'}" liveChange="onLiveChange"/>
 									<!--<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"-->
 									<!--	text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>Status', formatter : '.formatter.statusState'}"/>-->
-									<Input value="{local>ClaimValue}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+									<Input value="{local>ClaimAmount}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
 									<Button icon="sap-icon://attachment" text="{=${local>To_Attachments}.length===0? 'Attach' : 'Attached' }"
 										type="{=${local>To_Attachments}.length===0 ? 'Reject' : 'Accept' }" press="onSelectPhoto"/>
 								</cells>

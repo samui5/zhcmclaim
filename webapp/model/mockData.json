@@ -1,4 +1,10 @@
-{
+{	
+	"header" : {
+		"Pernr": "{unloaded}",
+		"Claimno": "{unassigned}",
+		"Claimid": "",
+		"Docstat": "0"
+	},
 	"tableData": [
 
 	],
