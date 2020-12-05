@@ -7,19 +7,23 @@
 					<!--<List items="{/ClaimSet}">-->
 					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->
 					<!--</List>-->
-					<ObjectHeader title="Personnel No.: {local>/empId}" number="" intro="CLAIM NO:XXXXXXX" numberUnit="Draft">
-						<firstStatus>
-							<ObjectStatus text="Draft" state="Success"></ObjectStatus>
-						</firstStatus>
+					<ObjectHeader title="Personnel No.: {local>/empId}" number="Status" intro="CLAIM NO: {local>/header/Pernr}"
+						numberUnit="{path:'local>/header/Docstat', formatter : '.formatter.statusText'}"
+						icon="{path:'local>/header/Docstat', formatter : '.formatter.statusIcon'}"
+						numberState="{path:'local>/header/Docstat', formatter : '.formatter.statusState'}">
+						<!--<firstStatus>-->
+						<!--	<ObjectStatus text="Status: {path:'local>/header/Docstat', formatter : '.formatter.statusText'}"-->
+						<!--		state="{path:'local>/header/Docstat', formatter : '.formatter.statusState'}" icon="{path:'local>/header/Docstat', formatter : '.formatter.statusIcon'}"></ObjectStatus>-->
+						<!--</firstStatus>-->
 					</ObjectHeader>
 					<f:SimpleForm editable="true">
 						<f:content>
 							<Label text="Month"/>
-							<Select id="idMonth" items="{local>/calendar/months}" width="25%">
+							<Select id="idMonth" items="{local>/calendar/months}" width="25%" enabled="{=${local>/header/Docstat}===''}">
 								<core:Item key="{local>abbreviation}" text="{local>name}"/>
 							</Select>
 							<Label text="Year"></Label>
-							<Select id="idYear" width="25%" items="{local>/calendar/years}">
+							<Select id="idYear" width="25%" items="{local>/calendar/years}" enabled="{=${local>/header/Docstat}===''}">
 								<core:Item key="{local>year}" text="{local>year}"/>
 							</Select>
 						</f:content>
@@ -28,8 +32,10 @@
 						<headerToolbar>
 							<Toolbar>
 								<ToolbarSpacer/>
-								<Button text="Add" icon="sap-icon://add" press="onAddRow" type="Accept"></Button>
-								<Button text="Delete" icon="sap-icon://delete" press="onDeleteRow" type="Reject"></Button>
+								<Button text="Add" icon="sap-icon://add" press="onAddRow" type="Accept"
+									enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"></Button>
+								<Button text="Delete" icon="sap-icon://delete" press="onDeleteRow" type="Reject"
+									enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"></Button>
 							</Toolbar>
 						</headerToolbar>
 						<columns>
@@ -51,9 +57,9 @@
 							<Column>
 								<Text text="{i18n>Destination}"></Text>
 							</Column>
-							<Column>
-								<Text text="{i18n>Status}"></Text>
-							</Column>
+							<!--<Column>-->
+							<!--	<Text text="{i18n>Status}"></Text>-->
+							<!--</Column>-->
 							<Column>
 								<Text text="{i18n>ClaimAmount}"></Text>
 							</Column>
@@ -64,20 +70,23 @@
 						<items>
 							<ColumnListItem>
 								<cells>
-									<Select selectedKey="{local>Wagetype}">
+									<Select selectedKey="{local>Wagetype}" change="onLiveChange" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}">
 										<core:Item key="C" text="Covering Forlift"/>
 										<core:Item key="H" text="Hardship"/>
 									</Select>
-									<DatePicker value="{path:'local>Createdate'}" valueFormat="dd.MM.yyyy" displayFormat="dd.MM.yyyy" enabled="true"/>
-									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="hh:mm a" change="handleChange" placeholder="Start time"/>
-									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="hh:mm a" change="handleChange" placeholder="End time"/>
-									<Input value="{local>Purpose}" enabled="{=${local>Wagetype}==='H' ? true : false}"/>
-									<Input value="{local>Destination}" enabled="{=${local>Wagetype}==='H' ? true : false}"/>
-									<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"
-										text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>State', formatter : '.formatter.statusState'}"/>
-									<Input value="{local>ClaimValue}"/>
-									<unified:FileUploader name="myFileUpload" fileType='pdf, doc' multiple="false" change="onUploadChange"
-										tooltip="Upload your file to the local system"/>
+									<DatePicker value="{path:'local>Createdate'}" valueFormat="dd.MM.yyyy" displayFormat="dd.MM.yyyy" change="onLiveChange"
+										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="Start time"
+										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="End time"
+										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+									<Input value="{local>Purpose}" enabled="{=${local>Wagetype}==='H'}" liveChange="onLiveChange"/>
+									<Input value="{local>Destination}" enabled="{=${local>Wagetype}==='H'}" liveChange="onLiveChange"/>
+									<!--<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"-->
+									<!--	text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>Status', formatter : '.formatter.statusState'}"/>-->
+									<Input value="{local>ClaimValue}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+									<Button icon="sap-icon://attachment" text="{=${local>To_Attachments}.length===0? 'Attach' : 'Attached' }"
+										type="{=${local>To_Attachments}.length===0 ? 'Reject' : 'Accept' }" press="onSelectPhoto"/>
 								</cells>
 							</ColumnListItem>
 						</items>

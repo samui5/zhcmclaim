@@ -73,6 +73,7 @@
 				"type": "sap.ui.model.odata.v2.ODataModel",
 				"settings": {
 					"defaultOperationMode": "Server",
+					"defaultUpdateMode": "PUT",
 					"defaultBindingMode": "OneTime",
 					"defaultCountMode": "Request"
 				},

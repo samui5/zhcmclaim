@@ -21,7 +21,16 @@ sap.ui.define([
 				success: function(data) {
 					that.oLocalModel.setProperty("/empId", data.results[0].Text);
 					that.oLocalModel.setProperty("/calendar/years", yearList);
+					var header = {
+						Pernr: "",
+						Docstat: ""
+					};
+					that.getView().getModel("local").setProperty("/header", header);
+				},
+				error: function(err) {
+					sap.m.MessageToast.show("Loading failed " + err);
 				}
+
 			});
 		},
 		formatter: formatter,
@@ -33,7 +42,7 @@ sap.ui.define([
 			// var record = this.getView().getModel("local").getProperty("/record");
 			var record = {
 				"Claimno": "",
-				"Pernr": "00000000",
+				"Pernr": "",
 				"Seqnr": "000",
 				"Docstat": "",
 				"Createdate": "",
@@ -45,21 +54,29 @@ sap.ui.define([
 				"Status": "0",
 				"Purpose": "",
 				"Destination": "",
-				"Total": "0.00"
+				"Total": "0.00",
+				"To_Attachments": []
 			};
 			record.Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 			var aItems = this.getView().getModel("local").getProperty("/tableData");
 			aItems.push(record);
 			this.getView().getModel("local").setProperty("/tableData", aItems);
+			this.getView().byId("idonSave").setEnabled(true);
+			this.getView().byId("idonSubmit").setEnabled(false);
+		},
+		onLiveChange: function() {
+			this.getView().byId("idonSave").setEnabled(true);
+			this.getView().byId("idonSubmit").setEnabled(false);
 		},
 		onSave: function() {
 			var that = this;
+			var header = this.getView().getModel("local").getProperty("/header");
 			var payload = {
 				"Claimno": "blank", //same
-				"Pernr": "00000000", //same
+				"Pernr": header.Pernr, //same
 				"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
 				"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
-				"Docstat": "0", //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
+				"Docstat": header.Docstat, //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
 				"Total": "0.00", //blank
 				"To_Items": []
 			};
@@ -72,7 +89,7 @@ sap.ui.define([
 				}
 				itemsPayload.push({
 					"Claimno": "", //blank
-					"Pernr": "00000000", //blank
+					"Pernr": "", //blank
 					"Seqnr": "000", //blank
 					"Createdate": new Date(item.Createdate), //blank
 					"Wagetype": item.Wagetype, //screen - table
@@ -83,14 +100,20 @@ sap.ui.define([
 					"Destination": item.Destination, //screen - table
 					"Total": item.Total, ////screen - table
 					"ClaimAmount": item.ClaimAmount, //screen - table
-					"To_Attachments": [
-
-					]
+					"To_Attachments": []
 				});
 			});
 			payload.To_Items = itemsPayload;
 			this.oDataModel.create("/ClaimSet", payload, {
-				success: function() {
+				success: function(data) {
+					header = {
+						Pernr: data.Pernr,
+						Claimno: data.Claimno,
+						Docstat: data.Docstat === "" ? "0" : data.Docstat
+					};
+					that.getView().getModel("local").setProperty("/header", header);
+					that.getView().byId("idonSave").setEnabled(false);
+					that.getView().byId("idonSubmit").setEnabled(true);
 					sap.m.MessageToast.show(that.oResource.getText("Success"));
 				},
 				error: function() {
@@ -98,35 +121,87 @@ sap.ui.define([
 				}
 			});
 		},
-		onUploadChange: function(oEvent) {
-			debugger;
-			var files = oEvent.getParameter("files");
+		onSubmit: function() {
 			var that = this;
-			if (!files.length) {
-
-			} else {
-				for (let i = 0; i < files.length; i++) {
-					var reader = new FileReader();
-					reader.onload = function(e){
-						try {
-							var vContent = e.currentTarget.result; //.result.replace("data:image/jpeg;base64,", "");
-							console.log(vContent);
-						} catch (e) {
-
-						}
+			// var header = {
+			// 	Pernr: "",
+			// 	Docstat: "1"
+			// };
+			// that.getView().getModel("local").setProperty("/header", header);
+			var header = this.getView().getModel("local").getProperty("/header");
+			var payload = {
+				Docstat: "1"
+			};
+			this.oDataModel.update("/ClaimSet('" + header.Claimno + "','" + header.Pernr + "')", payload, {
+				mehode: "PUT",
+				success: function(data) {
+					header = {
+						Claimno: data.Claimno,
+						Pernr: data.Pernr,
+						Docstat: data.Docstat
 					};
-					// var img = {
-					// 	"Claimno" : "000000",
-					// 	"Pernr" : "0000",
-					// 	"Seqnr" : "000",
-					// 	"Type" : "document-pdf",
-					// 	"Content" : vContent
-					// };
-					reader.readAsDataURL(files[i]);
-					
+					that.getView().getModel("local").setProperty("/header", header);
+					that.getView().byId("idonSave").setEnabled(false);
+					that.getView().byId("idonSubmit").setEnabled(false);
+					sap.m.MessageToast.show(that.oResource.getText("Success"));
+				},
+				error: function() {
+					sap.m.MessageToast.show(that.oResource.getText("Error"));
 				}
-			}
+			});
 		},
+		onSelectPhoto: function(oEvent) {
+			var that = this;
+			// move selected row data to global variable
+			// this.selRow = oEvent.getSource().getBindingContext().getObject();
+			// var relPath = oEvent.getSource().getBindingContext().getPath() + ("/ToPhotos");
+			that.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", that);
+			that.getView().addDependent(that.photoPopup);
+			// this.ODataHelper.callOData(this.getOwnerComponent().getModel(),
+			// 		relPath, "GET", {}, {}, this)
+			// 	.then(function(oData) {
+			// 		if (!that.photoPopup) {
+			// 			that.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", that);
+			// 			that.getView().addDependent(that.photoPopup);
+			// 		}
+			// 		var oModelPhoto = new JSONModel();
+			// 		oModelPhoto.setData(oData.results[0]);
+			// 		that.getView().setModel(oModelPhoto, "photo");
+			// 		that.photoPopup.open();
+			// 	}).catch(function(oError) {
+			// 		that.getView().setBusy(false);
+			// 		// var oPopover = that.getErrorMessage(oError);
+			// 	});
+		},
+		// onUploadChange: function(oEvent) {
+		// 	debugger;
+		// 	var files = oEvent.getParameter("files");
+		// 	var that = this;
+		// 	if (!files.length) {
+
+		// 	} else {
+		// 		for (var i = 0; i < files.length; i++) {
+		// 			var reader = new FileReader();
+		// 			reader.onload = function(e) {
+		// 				try {
+		// 					var vContent = e.currentTarget.result; //.result.replace("data:image/jpeg;base64,", "");
+		// 					console.log(vContent);
+		// 				} catch (e) {
+
+		// 				}
+		// 			};
+		// 			// var img = {
+		// 			// 	"Claimno" : "000000",
+		// 			// 	"Pernr" : "0000",
+		// 			// 	"Seqnr" : "000",
+		// 			// 	"Type" : "document-pdf",
+		// 			// 	"Content" : vContent
+		// 			// };
+		// 			reader.readAsDataURL(files[i]);
+
+		// 		}
+		// 	}
+		// },
 		onDeleteRow: function(oEvent) {
 			var map = new Map();
 			var sPaths = oEvent.getSource().getParent().getParent().getSelectedContextPaths();
@@ -139,6 +214,8 @@ sap.ui.define([
 				map.delete(item.match(/\d/g)[0]);
 			});
 			this.getView().getModel("local").setProperty("/tableData", Array.from(map.values()));
+			this.getView().byId("idonSave").setEnabled(true);
+			this.getView().byId("idonSubmit").setEnabled(false);
 		}
 	});
 });
