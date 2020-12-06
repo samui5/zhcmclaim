@@ -13,9 +13,6 @@
 							  mimeType="image/jpeg,image/gif,image/png"
 							  uploadComplete="_onFileUploaderUploadComplete" change="onFileUploaderChange" typeMissmatch="_onFileUploaderTypeMissmatch"
 							  fileSizeExceed="_onFileUploaderFileSizeExceed">
-							  <unified:headerParameters/>
-							  <unified:parameters/>
-							  <unified:xhrSettings/>
 							</unified:FileUploader>
 							<Image id="idCoPic" src="{photo>/Content}"/>
 						</VBox>
@@ -25,8 +22,6 @@
 			<buttons>
 				<Button icon="sap-icon://upload" id="idCoUpload" press="handleUploadPress" text="Upload Picture" type="Emphasized" iconFirst="true" width="auto" enabled="true" visible="true"
 				  iconDensityAware="false"/>
-				<Button icon="sap-icon://camera" id="idCoCapture" press="handleCapturePress" text="Capture Picture" type="Emphasized" iconFirst="true" width="auto" enabled="true" visible="true"
-					iconDensityAware="false"/>
 		  	<Button icon="sap-icon://sys-cancel" id="idCoClose" press="handleClosePress" text="Close" type="Emphasized" iconFirst="true" width="auto" enabled="true" visible="true"
 					iconDensityAware="false"/>
 			</buttons>
