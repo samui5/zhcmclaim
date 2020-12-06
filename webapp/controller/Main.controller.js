@@ -107,7 +107,7 @@ sap.ui.define([
 					that.getView().getModel("local").setProperty("/header", header);
 					that.getView().byId("idonSave").setEnabled(false);
 					that.getView().byId("idonSubmit").setEnabled(true);
-					sap.m.MessageToast.show(that.oResource.getText("Success"));
+					sap.m.MessageToast.show(that.oResource.getText("Claim Saved Successfully"));
 				},
 				error: function() {
 					sap.m.MessageToast.show(that.oResource.getText("Error"));
@@ -171,7 +171,8 @@ sap.ui.define([
 					var oFile = {};
 					oFile.imgContent = e.currentTarget.result;
 					// getting the attachment content into local json model
-					this.aItems[this.selectedIndex].To_Attachments.push({ Content : oFile.imgContent});
+					this.aItems[this.selectedIndex].Content = oFile.imgContent;
+					//this.aItems[this.selectedIndex].To_Attachments.push({ Content : oFile.imgContent});
             //show uploaded picture
                   var oModelPhoto = new JSONModel();
                   oModelPhoto.setData(this.aItems[this.selectedIndex]);
