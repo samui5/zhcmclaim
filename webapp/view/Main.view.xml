@@ -57,9 +57,9 @@
 							<Column>
 								<Text text="{i18n>Destination}"></Text>
 							</Column>
-							<!--<Column>-->
-							<!--	<Text text="{i18n>Status}"></Text>-->
-							<!--</Column>-->
+							<Column>
+								<Text text="{i18n>Status}"></Text>
+							</Column>
 							<Column>
 								<Text text="{i18n>ClaimAmount}"></Text>
 							</Column>
@@ -71,8 +71,8 @@
 							<ColumnListItem>
 								<cells>
 									<Select selectedKey="{local>Wagetype}" change="onLiveChange" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}">
-										<core:Item key="C" text="Covering Forlift"/>
-										<core:Item key="H" text="Hardship"/>
+										<core:Item key="2509" text="Covering Forlift"/>
+										<core:Item key="2513" text="Hardship"/>
 									</Select>
 									<DatePicker value="{path:'local>Createdate'}" valueFormat="dd.MM.yyyy" displayFormat="dd.MM.yyyy" change="onLiveChange"
 										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
@@ -80,11 +80,11 @@
 										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
 									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="End time"
 										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
-									<Input value="{local>Purpose}" enabled="{=${local>Wagetype}==='H'}" liveChange="onLiveChange"/>
-									<Input value="{local>Destination}" enabled="{=${local>Wagetype}==='H'}" liveChange="onLiveChange"/>
-									<!--<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"-->
-									<!--	text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>Status', formatter : '.formatter.statusState'}"/>-->
-									<Input value="{local>ClaimAmount}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+									<Input value="{local>Purpose}" enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}]        , formatter : '.formatter.enabledWagetype'}" liveChange="onLiveChange"/>
+									<Input value="{local>Destination}" enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledWagetype'}" liveChange="onLiveChange"/>
+									<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"
+										text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>Status', formatter : '.formatter.statusState'}"/>
+									<Input value="{local>ClaimAmount}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" liveChange="onLiveChange"/>
 									<Button icon="sap-icon://attachment" text="{=${local>To_Attachments}.length===0? 'Attach' : 'Attached' }"
 										type="{=${local>To_Attachments}.length===0 ? 'Reject' : 'Accept' }" press="onSelectPhoto"/>
 								</cells>

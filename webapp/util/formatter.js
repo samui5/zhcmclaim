@@ -38,6 +38,15 @@ sap.ui.define([],
 				} else {
 					return false;
 				}
+			},
+			enabledWagetype : function(wagetype,status){
+				if(status==="1" || status==="2"){
+					return false;
+				}else if(wagetype==="2509"){
+					return false;
+				} else{
+					return true;
+				}
 			}
 		};
 	}

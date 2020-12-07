@@ -2,8 +2,9 @@ sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/model/json/JSONModel",
 	"hcm/claim/util/formatter",
-	"sap/m/Dialog"
-], function(Controller, JSONModel, formatter,Dialog) {
+	"sap/m/Dialog",
+	"sap/m/MessageBox"
+], function(Controller, JSONModel, formatter, Dialog, MessageBox) {
 	"use strict";
 	return Controller.extend("hcm.claim.controller.Main", {
 		onInit: function() {
@@ -22,11 +23,11 @@ sap.ui.define([
 				success: function(data) {
 					that.oLocalModel.setProperty("/empId", data.results[0].Text);
 					that.oLocalModel.setProperty("/calendar/years", yearList);
-					// var header = {
-					// 	Pernr: "",
-					// 	Docstat: ""
-					// };
-					// that.getView().getModel("local").setProperty("/header", header);
+					var header = {
+						Pernr: "",
+						Docstat: ""
+					};
+					that.getView().getModel("local").setProperty("/header", header);
 				},
 				error: function(err) {
 					sap.m.MessageToast.show("Loading failed " + err);
@@ -45,15 +46,15 @@ sap.ui.define([
 			var record = {
 				"Createdate": "",
 				"ClaimAmount": "0.00",
-				"Wagetype": "C",
+				"Wagetype": "2509",
 				"ClaimDate": "",
 				"TimeStart": "00:00",
 				"TimeEnd": (date.getHours()) + ":" + date.getMinutes(),
-				"Status": "0",
+				"Status": "",
 				"Purpose": "",
 				"Destination": "",
 				"Comments": "",
-				"To_Attachments": [ ] // changes by Surya 06.12.2020
+				"To_Attachments": [] // changes by Surya 06.12.2020
 			};
 			record.Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 			this.aItems = this.getView().getModel("local").getProperty("/tableData");
@@ -79,7 +80,7 @@ sap.ui.define([
 			var itemsPayload = [];
 			var items = this.getView().getModel("local").getProperty("/tableData");
 			items.forEach(function(item) {
-				if (item.Wagetype === "C") {
+				if (item.Wagetype === "2509") {
 					item.Purpose = "";
 					item.Destination = "";
 				}
@@ -109,37 +110,35 @@ sap.ui.define([
 					that.getView().byId("idonSubmit").setEnabled(true);
 					sap.m.MessageToast.show(that.oResource.getText("Claim Saved Successfully"));
 				},
-				error: function() {
-					sap.m.MessageToast.show(that.oResource.getText("Error"));
+				error: function(oError) {
+					MessageBox.error(JSON.parse(oError.responseText).error.message.value);
 				}
 			});
 		},
 		onSubmit: function() {
 			var that = this;
-			// var header = {
-			// 	Pernr: "",
-			// 	Docstat: "1"
-			// };
-			// that.getView().getModel("local").setProperty("/header", header);
-			var header = this.getView().getModel("local").getProperty("/header");
-			var payload = {
-				Docstat: "1"
-			};
-			this.oDataModel.update("/ClaimSet('" + header.Claimid + "')", payload, {
-				success: function(data) {
-					that.getView().getModel("local").setProperty("/header/Docstat", "1");
-					that.getView().byId("idonSave").setEnabled(false);
-					that.getView().byId("idonSubmit").setEnabled(false);
-					sap.m.MessageToast.show(that.oResource.getText("Success"));
-				},
-				error: function() {
-					sap.m.MessageToast.show(that.oResource.getText("Error"));
+			MessageBox.confirm("Do you want to Submit for Approval, Claim will be locked", function(oVal) {
+				if (oVal === "OK") {
+					var header = that.getView().getModel("local").getProperty("/header");
+					var payload = {
+						Docstat: "1"
+					};
+					this.oDataModel.update("/ClaimSet('" + header.Claimid + "')", payload, {
+						success: function(data) {
+							that.getView().getModel("local").setProperty("/header/Docstat", "1");
+							that.getView().byId("idonSave").setEnabled(false);
+							that.getView().byId("idonSubmit").setEnabled(false);
+							sap.m.MessageToast.show(that.oResource.getText("Success"));
+						},
+						error: function() {
+							sap.m.MessageToast.show(that.oResource.getText("Error"));
+						}
+					});
 				}
 			});
 		},
 		// Start of changes  by Surya 06.12.2020
 		onSelectPhoto: function(oEvent) {
-			debugger;
 			var that = this;
 			if (!that.photoPopup) {
 				that.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", that);
@@ -147,13 +146,12 @@ sap.ui.define([
 			}
 			that.photoPopup.open();
 			// get the index of the row for which the attachment button has been clicked
-				var path = oEvent.getSource().mBindingInfos.text.binding.getBindings()[0].getContext().getPath();
-				this.selectedIndex = path.split("/", 3)[2];
+			var path = oEvent.getSource().mBindingInfos.text.binding.getBindings()[0].getContext().getPath();
+			this.selectedIndex = path.split("/", 3)[2];
 		},
 
 		selectedIndex: null,
 		handleUploadPress: function(oEvent) {
-			debugger;
 			var oFileUploader = sap.ui.getCore().byId("idCoUploader");
 			// if (!oFileUploader.getValue()) {
 			//   sap.m.MessageToast.show("Choose a file first");
@@ -173,10 +171,10 @@ sap.ui.define([
 					// getting the attachment content into local json model
 					this.aItems[this.selectedIndex].Content = oFile.imgContent;
 					//this.aItems[this.selectedIndex].To_Attachments.push({ Content : oFile.imgContent});
-            //show uploaded picture
-                  var oModelPhoto = new JSONModel();
-                  oModelPhoto.setData(this.aItems[this.selectedIndex]);
-                  this.getView().setModel(oModelPhoto, "photo");
+					//show uploaded picture
+					var oModelPhoto = new JSONModel();
+					oModelPhoto.setData(this.aItems[this.selectedIndex]);
+					this.getView().setModel(oModelPhoto, "photo");
 					//that.savePicToDb(that.fileName, that.fileType, picture);
 					//if picture already exists update the picture
 					// if (that.selRow.Picture==="X") {
@@ -241,18 +239,17 @@ sap.ui.define([
 				reader.readAsDataURL(file);
 			} else if (this.flag === 'C') {
 				var snapId = 'Capture';
-			//	this.savePicToDb(this.attachName,
-			//		"jpeg",
-			//		document.getElementById(snapId).toDataURL())
+				//	this.savePicToDb(this.attachName,
+				//		"jpeg",
+				//		document.getElementById(snapId).toDataURL())
 			} else {
 				sap.m.MessageToast.show("Upload or capture Picture");
 				return;
 			}
 		},
-      
+
 		// close photo upload popup
 		handleClosePress: function(oEvent) {
-			debugger;
 			if (!this.photoPopup) {
 				this.photoPopup = new sap.ui.xmlfragment("victoria.fragments.PhotoUploadDialog", this);
 			}
@@ -295,19 +292,29 @@ sap.ui.define([
 		// 	}
 		// },
 		onDeleteRow: function(oEvent) {
-			var map = new Map();
-			var sPaths = oEvent.getSource().getParent().getParent().getSelectedContextPaths();
-			oEvent.getSource().getParent().getParent().removeSelections();
-			var records = this.getView().getModel("local").getProperty("/tableData");
-			records.forEach(function(item, index) {
-				map.set(index.toString(), item);
+			var that = this;
+			var oTable = oEvent.getSource().getParent().getParent();
+			var sPaths = oTable.getSelectedContextPaths();
+			if(sPaths.length===0){
+				sap.m.MessageToast.show("Please select an Claim Item");
+				return;
+			}
+			MessageBox.confirm(" Do you want to delete the item?", function(sVal) {
+				if (sVal === "OK") {
+					var map = new Map();
+					var records = that.getView().getModel("local").getProperty("/tableData");
+					records.forEach(function(item, index) {
+						map.set(index.toString(), item);
+					});
+					sPaths.forEach(function(item) {
+						map.delete(item.match(/\d/g)[0]);
+					});
+					that.getView().getModel("local").setProperty("/tableData", Array.from(map.values()));
+					that.getView().byId("idonSave").setEnabled(true);
+					that.getView().byId("idonSubmit").setEnabled(false);
+					oTable.removeSelections();
+				}
 			});
-			sPaths.forEach(function(item) {
-				map.delete(item.match(/\d/g)[0]);
-			});
-			this.getView().getModel("local").setProperty("/tableData", Array.from(map.values()));
-			this.getView().byId("idonSave").setEnabled(true);
-			this.getView().byId("idonSubmit").setEnabled(false);
 		}
 	});
 });
