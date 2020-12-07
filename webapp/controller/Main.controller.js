@@ -23,11 +23,10 @@ sap.ui.define([
 				success: function(data) {
 					that.oLocalModel.setProperty("/empId", data.results[0].Text);
 					that.oLocalModel.setProperty("/calendar/years", yearList);
-					var header = {
+					that.getView().getModel("local").setProperty("/header", {
 						Pernr: "",
 						Docstat: ""
-					};
-					that.getView().getModel("local").setProperty("/header", header);
+					});
 				},
 				error: function(err) {
 					sap.m.MessageToast.show("Loading failed " + err);
@@ -103,7 +102,7 @@ sap.ui.define([
 						Pernr: data.Pernr,
 						Claimno: data.Claimno,
 						Claimid: data.Claimid,
-						Docstat: data.Docstat === "" ? "0" : data.Docstat
+						Docstat: data.Docstat
 					};
 					that.getView().getModel("local").setProperty("/header", header);
 					that.getView().byId("idonSave").setEnabled(false);
@@ -123,7 +122,7 @@ sap.ui.define([
 					var payload = {
 						Docstat: "1"
 					};
-					this.oDataModel.update("/ClaimSet('" + header.Claimid + "')", payload, {
+					that.oDataModel.update("/ClaimSet('" + header.Claimid + "')", payload, {
 						success: function(data) {
 							that.getView().getModel("local").setProperty("/header/Docstat", "1");
 							that.getView().byId("idonSave").setEnabled(false);
@@ -295,7 +294,7 @@ sap.ui.define([
 			var that = this;
 			var oTable = oEvent.getSource().getParent().getParent();
 			var sPaths = oTable.getSelectedContextPaths();
-			if(sPaths.length===0){
+			if (sPaths.length === 0) {
 				sap.m.MessageToast.show("Please select an Claim Item");
 				return;
 			}
