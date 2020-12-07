@@ -12,6 +12,9 @@ sap.ui.define([
 			this.oDataModel = this.getOwnerComponent().getModel();
 			this.oLocalModel = this.getOwnerComponent().getModel("local");
 			this.oResource = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+			this.itemCrudMap = new Map();
+			this.itemCrudMap.set("Delete", new Set());
+			this.itemCrudMap.set("Update", new Map());
 			var currentYear = (new Date()).getFullYear();
 			var yearList = [];
 			for (var i = 0; i < 20; i++) {
@@ -27,6 +30,12 @@ sap.ui.define([
 						Pernr: "",
 						Docstat: ""
 					});
+					var date = new Date();
+					that.getView().getModel("local").setProperty("/date", {
+						minDate: new Date(date.getFullYear(), date.getMonth(), 1),
+						maxDate: new Date(date.getFullYear(), date.getMonth() + 1, 0)
+					});
+					that.getView().byId('idMonth').setSelectedKey(date.getMonth() < 9 ? '0' + (1 + date.getMonth()) : (1 + date.getMonth()));
 				},
 				error: function(err) {
 					sap.m.MessageToast.show("Loading failed " + err);
@@ -78,6 +87,10 @@ sap.ui.define([
 			};
 			var itemsPayload = [];
 			var items = this.getView().getModel("local").getProperty("/tableData");
+			if (items.length === 0) {
+				MessageBox.alert("Please add a item first");
+				return;
+			}
 			items.forEach(function(item) {
 				if (item.Wagetype === "2509") {
 					item.Purpose = "";
@@ -105,6 +118,11 @@ sap.ui.define([
 						Docstat: data.Docstat
 					};
 					that.getView().getModel("local").setProperty("/header", header);
+					data.To_Items.results.forEach(function(item, index) {
+						var date = new Date(item.Createdate);
+						data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+					});
+					that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 					that.getView().byId("idonSave").setEnabled(false);
 					that.getView().byId("idonSubmit").setEnabled(true);
 					sap.m.MessageToast.show(that.oResource.getText("Claim Saved Successfully"));
@@ -125,6 +143,11 @@ sap.ui.define([
 					that.oDataModel.update("/ClaimSet('" + header.Claimid + "')", payload, {
 						success: function(data) {
 							that.getView().getModel("local").setProperty("/header/Docstat", "1");
+							var items = that.getView().getModel("local").getProperty("/tableData");
+							items.forEach(function(item, index) {
+								items[index].Status = "1";
+							});
+							that.getView().getModel("local").setProperty("/tableData", items);
 							that.getView().byId("idonSave").setEnabled(false);
 							that.getView().byId("idonSubmit").setEnabled(false);
 							sap.m.MessageToast.show(that.oResource.getText("Success"));
@@ -298,6 +321,7 @@ sap.ui.define([
 				sap.m.MessageToast.show("Please select an Claim Item");
 				return;
 			}
+			oTable.removeSelections();
 			MessageBox.confirm(" Do you want to delete the item?", function(sVal) {
 				if (sVal === "OK") {
 					var map = new Map();
@@ -306,14 +330,27 @@ sap.ui.define([
 						map.set(index.toString(), item);
 					});
 					sPaths.forEach(function(item) {
+						var id = map.get(item.match(/\d/g)[0]).ItemId;
+						if (id) {
+							this.itemCrudMap.get("delete").add(id);
+						}
 						map.delete(item.match(/\d/g)[0]);
 					});
 					that.getView().getModel("local").setProperty("/tableData", Array.from(map.values()));
 					that.getView().byId("idonSave").setEnabled(true);
 					that.getView().byId("idonSubmit").setEnabled(false);
-					oTable.removeSelections();
 				}
 			});
+		},
+		onClear: function() {
+			this.oDataModel.callFunction("/FlushData", // function import name
+				"GET", // http method
+				{}, // function import parameters
+				null,
+				function(oData, response) {
+					MessageBox.success("Table Flushed");
+				}, // callback function for success
+				function(oError) {});
 		}
 	});
 });
