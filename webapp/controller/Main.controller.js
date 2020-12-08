@@ -14,7 +14,7 @@ sap.ui.define([
 			this.oResource = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 			this.itemCrudMap = new Map();
 			this.itemCrudMap.set("Delete", new Set());
-			this.itemCrudMap.set("Update", new Map());
+			this.itemCrudMap.set("Update", new Set());
 			var currentYear = (new Date()).getFullYear();
 			var yearList = [];
 			for (var i = 0; i < 20; i++) {
@@ -71,7 +71,11 @@ sap.ui.define([
 			this.getView().byId("idonSave").setEnabled(true);
 			this.getView().byId("idonSubmit").setEnabled(false);
 		},
-		onLiveChange: function() {
+		onLiveChange: function(oEvent) {
+			var id = this.getView().getModel('local').getProperty(oEvent.getSource().getParent().getBindingContextPath()).ItemId;
+			if (id) {
+				this.itemCrudMap.get("Update").add(id);
+			}
 			this.getView().byId("idonSave").setEnabled(true);
 			this.getView().byId("idonSubmit").setEnabled(false);
 		},
@@ -96,8 +100,9 @@ sap.ui.define([
 					item.Purpose = "";
 					item.Destination = "";
 				}
+				var date = item.Createdate.split(".");
 				itemsPayload.push({
-					"Createdate": new Date(item.Createdate), //blank
+					"Createdate": new Date(date[2] + "/" + date[1] + "/" + date[0]), //blank
 					"Wagetype": item.Wagetype, //screen - table
 					"TimeStart": item.TimeStart, //screen - table
 					"TimeEnd": item.TimeEnd, //screen - table
@@ -332,7 +337,7 @@ sap.ui.define([
 					sPaths.forEach(function(item) {
 						var id = map.get(item.match(/\d/g)[0]).ItemId;
 						if (id) {
-							this.itemCrudMap.get("delete").add(id);
+							that.itemCrudMap.get("Delete").add(id);
 						}
 						map.delete(item.match(/\d/g)[0]);
 					});
