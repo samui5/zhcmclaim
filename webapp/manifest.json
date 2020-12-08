@@ -43,7 +43,7 @@
 	},
 	"sap.ui5": {
 		"rootView": {
-			"viewName": "hcm.claim.view.Main",
+			"viewName": "hcm.claim.view.App",
 			"type": "XML"
 		},
 		"dependencies": {
@@ -85,6 +85,44 @@
 				"settings": {},
 				"preload": true,
 				"uri": "model/mockData.json"
+			}
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"viewType": "XML",
+				"viewPath": "hcm.claim.view",
+				"controlId": "idAppCon"
+			},
+			"routes": [
+				{
+					"pattern": "",
+					"name": "master",
+					"target": [
+						"worklist"
+					]
+				},
+				{
+					"name": "main",
+					"pattern": "claim/{claimid}",
+					"target": [
+						"main"
+					]
+				}
+			],
+			"targets": {
+				"worklist": {
+					"viewName": "Worklist",
+					"viewId": "idWorklist",
+					"controlAggregation": "pages"
+				},
+				"main": {
+					"clearAggregation": true,
+					"viewName": "Main",
+					"viewLevel": 1,
+					"controlAggregation": "pages",
+					"viewId": "idMain"
+				}
 			}
 		},
 		"resources": {
