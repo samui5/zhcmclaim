@@ -58,7 +58,7 @@ sap.ui.define([
 			var date = new Date();
 			// var record = this.getView().getModel("local").getProperty("/record");
 			var record = {
-				"Createdate": "",
+				"Createdate": this.formatter.getFormattedDate(0),
 				"ClaimAmount": "0.00",
 				"Wagetype": "2509",
 				"ClaimDate": "",
@@ -70,7 +70,7 @@ sap.ui.define([
 				"Comments": "",
 				"To_Attachments": [] // changes by Surya 06.12.2020
 			};
-			record.Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+			//record.Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 			this.aItems = this.getView().getModel("local").getProperty("/tableData");
 			this.aItems.push(record);
 			this.getView().getModel("local").setProperty("/tableData", this.aItems);
@@ -134,7 +134,8 @@ sap.ui.define([
 						that.getView().getModel("local").setProperty("/header", header);
 						data.To_Items.results.forEach(function(item, index) {
 							var date = new Date(item.Createdate);
-							data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+							//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+							data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);                  
 						});
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId("idonSave").setEnabled(false);

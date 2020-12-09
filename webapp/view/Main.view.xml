@@ -74,8 +74,9 @@
 										<core:Item key="2509" text="Covering Forlift"/>
 										<core:Item key="2513" text="Hardship"/>
 									</Select>
-									<DatePicker value="{path:'local>Createdate'}" valueFormat="dd-MM-yyyy" displayFormat="dd.MM.yyyy" change="onLiveChange"
-										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" minDate = "{local>/date/minDate}" maxDate = "{local>/date/maxDate}"/>
+									<DatePicker value="{path:'local>Createdate'}" displayFormat="dd.MM.yyyy" valueFormat="dd.MM.yyyy" change="onLiveChange"
+										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" minDate = "{local>/date/minDate}" 
+										maxDate = "{local>/date/maxDate}"/>
 									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="Start time"
 										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
 									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="End time"
