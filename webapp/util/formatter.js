@@ -38,19 +38,25 @@ sap.ui.define([],
 				return dd + '.' + mm + '.' + yyyy;
 			},
 			getSAPFormattedDate: function(newDate) {
-				var dateObj = newDate;
-				dateObj.setDate(dateObj.getDate());
-				var dd = dateObj.getDate();
-				dateObj.setMonth(dateObj.getMonth());
-				var mm = dateObj.getMonth() + 1;
-				var yyyy = dateObj.getFullYear();
-				if (dd < 10) {
-					dd = '0' + dd;
+				if(newDate){
+					var dateObj = newDate;
+					dateObj.setDate(dateObj.getDate());
+					var dd = dateObj.getDate();
+					dateObj.setMonth(dateObj.getMonth());
+					var mm = dateObj.getMonth() + 1;
+					var yyyy = dateObj.getFullYear();
+					if (dd < 10) {
+						dd = '0' + dd;
+					}
+					if (mm < 10) {
+						mm = '0' + mm;
+					}
+					return dd + '.' + mm + '.' + yyyy;
 				}
-				if (mm < 10) {
-					mm = '0' + mm;
-				}
-				return dd + '.' + mm + '.' + yyyy;
+				
+			},
+			displaySAPDate: function(){
+				
 			},
 			statusIcon: function(num) {
 				var state = {

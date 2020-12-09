@@ -15,6 +15,12 @@
 						<!--	<ObjectStatus text="Status: {path:'local>/header/Docstat', formatter : '.formatter.statusText'}"-->
 						<!--		state="{path:'local>/header/Docstat', formatter : '.formatter.statusState'}" icon="{path:'local>/header/Docstat', formatter : '.formatter.statusIcon'}"></ObjectStatus>-->
 						<!--</firstStatus>-->
+						<attributes>
+							<ObjectAttribute
+								title= "Create Date"
+								text="{path: 'local>/header/CreatedOn'}">
+							</ObjectAttribute>
+						</attributes>
 					</ObjectHeader>
 					<f:SimpleForm editable="true">
 						<f:content>
