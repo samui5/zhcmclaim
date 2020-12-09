@@ -2,7 +2,7 @@
 	xmlns:mvc="sap.ui.core.mvc" xmlns:unified="sap.ui.unified" displayBlock="true" xmlns="sap.m" xmlns:f="sap.ui.layout.form">
 	<App>
 		<pages>
-			<Page title="{i18n>title}">
+			<Page title="{i18n>title}" showNavButton = "true" navButtonPress = "onNavButtonPress" navButtonText = "Back">
 				<content>
 					<!--<List items="{/ClaimSet}">-->
 					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->

@@ -3,12 +3,15 @@ sap.ui.define([
 	"sap/ui/model/json/JSONModel",
 	"hcm/claim/util/formatter",
 	"sap/m/Dialog",
-	"sap/m/MessageBox"
-], function(Controller, JSONModel, formatter, Dialog, MessageBox) {
+	"sap/m/MessageBox",
+	"sap/m/MessageToast"
+], function(Controller, JSONModel, formatter, Dialog, MessageBox, MessageToast) {
 	"use strict";
 	return Controller.extend("hcm.claim.controller.Main", {
 		onInit: function() {
 			var that = this;
+			this.oRouter = this.getOwnerComponent().getRouter();
+			this.oRouter.getRoute("main").attachMatched(this._onRouteMatched, this);
 			this.oDataModel = this.getOwnerComponent().getModel();
 			this.oLocalModel = this.getOwnerComponent().getModel("local");
 			this.oResource = this.getOwnerComponent().getModel("i18n").getResourceBundle();
@@ -42,6 +45,9 @@ sap.ui.define([
 				}
 
 			});
+		},
+		onNavButtonPress : function(){
+			this.oRouter.navTo("worklist");
 		},
 		formatter: formatter,
 		_onRouteMatched: function() {
@@ -80,60 +86,105 @@ sap.ui.define([
 			this.getView().byId("idonSubmit").setEnabled(false);
 		},
 		onSave: function() {
-			var that = this;
 			var header = this.getView().getModel("local").getProperty("/header");
-			var payload = {
-				"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
-				"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
-				"Docstat": header.Docstat, //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
-				"Total": "0.00", //blank
-				"To_Items": []
-			};
-			var itemsPayload = [];
-			var items = this.getView().getModel("local").getProperty("/tableData");
-			if (items.length === 0) {
-				MessageBox.alert("Please add a item first");
-				return;
-			}
-			items.forEach(function(item) {
-				if (item.Wagetype === "2509") {
-					item.Purpose = "";
-					item.Destination = "";
+			if (header.Claimid) {
+				this.onUpsert(header.Claimid);
+			} else {
+				var that = this;
+				var payload = {
+					"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
+					"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
+					"Docstat": header.Docstat, //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
+					"Total": "0.00", //blank
+					"To_Items": []
+				};
+				var itemsPayload = [];
+				var items = this.getView().getModel("local").getProperty("/tableData");
+				if (items.length === 0) {
+					MessageBox.alert("Please add a item first");
+					return;
 				}
-				var date = item.Createdate.split(".");
-				itemsPayload.push({
-					"Createdate": new Date(date[2] + "/" + date[1] + "/" + date[0]), //blank
-					"Wagetype": item.Wagetype, //screen - table
-					"TimeStart": item.TimeStart, //screen - table
-					"TimeEnd": item.TimeEnd, //screen - table
-					"Status": item.Status, //blank
-					"Purpose": item.Purpose, //screen - table
-					"Destination": item.Destination, //screen - table
-					"ClaimAmount": item.ClaimAmount, //screen - table
-					"To_Attachments": []
-				});
-			});
-			payload.To_Items = itemsPayload;
-			this.oDataModel.create("/ClaimSet", payload, {
-				success: function(data) {
-					header = {
-						Pernr: data.Pernr,
-						Claimno: data.Claimno,
-						Claimid: data.Claimid,
-						Docstat: data.Docstat
-					};
-					that.getView().getModel("local").setProperty("/header", header);
-					data.To_Items.results.forEach(function(item, index) {
-						var date = new Date(item.Createdate);
-						data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+				items.forEach(function(item) {
+					if (item.Wagetype === "2509") {
+						item.Purpose = "";
+						item.Destination = "";
+					}
+					var date = item.Createdate.split(".");
+					itemsPayload.push({
+						"Createdate": new Date(date[2] + "/" + date[1] + "/" + date[0]), //blank
+						"Wagetype": item.Wagetype, //screen - table
+						"TimeStart": item.TimeStart, //screen - table
+						"TimeEnd": item.TimeEnd, //screen - table
+						"Status": item.Status, //blank
+						"Purpose": item.Purpose, //screen - table
+						"Destination": item.Destination, //screen - table
+						"ClaimAmount": item.ClaimAmount, //screen - table
+						"To_Attachments": []
 					});
-					that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
-					that.getView().byId("idonSave").setEnabled(false);
-					that.getView().byId("idonSubmit").setEnabled(true);
-					sap.m.MessageToast.show(that.oResource.getText("Claim Saved Successfully"));
-				},
-				error: function(oError) {
-					MessageBox.error(JSON.parse(oError.responseText).error.message.value);
+				});
+				payload.To_Items = itemsPayload;
+				this.oDataModel.create("/ClaimSet", payload, {
+					success: function(data) {
+						header = {
+							Pernr: data.Pernr,
+							Claimno: data.Claimno,
+							Claimid: data.Claimid,
+							Docstat: data.Docstat
+						};
+						that.getView().getModel("local").setProperty("/header", header);
+						data.To_Items.results.forEach(function(item, index) {
+							var date = new Date(item.Createdate);
+							data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+						});
+						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
+						that.getView().byId("idonSave").setEnabled(false);
+						that.getView().byId("idonSubmit").setEnabled(true);
+						sap.m.MessageToast.show(that.oResource.getText("Claim Saved Successfully"));
+					},
+					error: function(oError) {
+						MessageBox.error(JSON.parse(oError.responseText).error.message.value);
+					}
+				});
+			}
+		},
+		onUpsert: function(claimId) {
+			var that = this;
+			var items = this.getView().getModel("local").getProperty("/tableData");
+			var deleted = this.itemCrudMap.get("Delete");
+			var updated = this.itemCrudMap.get("Update");
+			items.forEach(function(item) {
+				if (deleted.has(item.ItemId)) {
+					that.oDataModel.delete("/ClaimItemSet('" + item.ItemId + "')", {
+						method: "DELETE",
+						success: function(data) {
+							that.itemCrudMap.set("Delete", new Set());
+							MessageToast.show("Delete Success");
+						},
+						error: function(oError) {
+							MessageToast.show("Error In Delete");
+						}
+					});
+				} else if (updated.has(item.ItemId)) {
+					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
+						method: "PUT",
+						success: function(data) {
+							that.itemCrudMap.set("Update", new Set());
+							MessageToast.show("Update Success");
+						},
+						error: function(oError) {
+							MessageToast.show("Error In Update");
+						}
+					});
+				} else if (!item.ItemId) {
+					item.Claimid = claimId;
+					that.oDataModel.create("/ClaimItemSet", item, {
+						success: function(data) {
+							MessageToast.show("New Item Added");
+						},
+						error: function(oError) {
+							MessageToast.show("Error New Items");
+						}
+					});
 				}
 			});
 		},
