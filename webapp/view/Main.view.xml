@@ -40,10 +40,10 @@
 						</headerToolbar>
 						<columns>
 							<Column>
-								<Text text="{i18n>WageType}"></Text>
+								<Text text="{i18n>ClaimType}"></Text>
 							</Column>
 							<Column>
-								<Text text="{i18n>CreateDate}"></Text>
+								<Text text="{i18n>ClaimDate}"></Text>
 							</Column>
 							<Column>
 								<Text text="{i18n>StartTime}"></Text>

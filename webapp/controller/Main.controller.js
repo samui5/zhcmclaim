@@ -35,7 +35,7 @@ sap.ui.define([
 				}
 
 			});
-			
+
 		},
 		onNavButtonPress: function() {
 			this.oRouter.navTo("worklist");
@@ -45,9 +45,22 @@ sap.ui.define([
 			var date = new Date();
 			var that = this;
 			var path = oEvent.getParameter("arguments").claimid;
-			this.getView().getModel().read("/" + path + "/To_Items",{
-				success: function(data){
-					that.getView().getModel("local").setProperty("/tableData", data.results);
+			this.getView().getModel().read("/" + path, {
+				urlParameters: {
+					'$expand': 'To_Items'
+				},
+				success: function(data) {
+					var header = {
+						Claimid: data.Claimid,
+						Claimno: data.Claimno,
+						Cmonth: data.Cmonth,
+						Cyear: data.Cyear,
+						Docstat: data.Docstat,
+						Pernr: data.Pernr,
+						Total : data.Total
+					};
+					that.getView().getModel("local").setProperty("/header", header);
+					that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 				}
 			});
 			this.getView().getModel("local").setProperty("/date", {
