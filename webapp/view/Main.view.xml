@@ -19,11 +19,11 @@
 					<f:SimpleForm editable="true">
 						<f:content>
 							<Label text="Month"/>
-							<Select id="idMonth" items="{local>/calendar/months}" width="25%" enabled="{=${local>/header/Docstat}===''}">
+							<Select id="idMonth" items="{local>/calendar/months}" width="25%" enabled="{=${local>/header/Docstat}===''}" change="onDateChange">
 								<core:Item key="{local>abbreviation}" text="{local>name}"/>
 							</Select>
 							<Label text="Year"></Label>
-							<Select id="idYear" width="25%" items="{local>/calendar/years}" enabled="{=${local>/header/Docstat}===''}">
+							<Select id="idYear" width="25%" items="{local>/calendar/years}" enabled="{=${local>/header/Docstat}===''}" change="onDateChange">
 								<core:Item key="{local>year}" text="{local>year}"/>
 							</Select>
 						</f:content>

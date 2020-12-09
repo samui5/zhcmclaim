@@ -42,40 +42,70 @@ sap.ui.define([
 		},
 		formatter: formatter,
 		_onRouteMatched: function(oEvent) {
-			var date = new Date();
 			var that = this;
 			var path = oEvent.getParameter("arguments").claimid;
-			this.getView().getModel().read("/" + path, {
-				urlParameters: {
-					'$expand': 'To_Items'
-				},
-				success: function(data) {
-					var header = {
-						Claimid: data.Claimid,
-						Claimno: data.Claimno,
-						Cmonth: data.Cmonth,
-						Cyear: data.Cyear,
-						Docstat: data.Docstat,
-						Pernr: data.Pernr,
-						Total : data.Total
-					};
-					that.getView().getModel("local").setProperty("/header", header);
-					that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
-				}
-			});
+			if (path === "new") {
+				that.getView().getModel("local").setProperty("/header", {
+					"Pernr": "{unloaded}",
+					"Claimno": "{unassigned}",
+					"Claimid": "",
+					"Docstat": ""
+				});
+				that.getView().getModel("local").setProperty("/tableData", []);
+				var date = new Date();
+				this.getView().getModel("local").setProperty("/date", {
+					minDate: new Date(date.getFullYear(), date.getMonth(), 1),
+					maxDate: new Date(date.getFullYear(), date.getMonth() + 1, 0)
+				});
+				this.getView().byId('idMonth').setSelectedKey(date.getMonth() < 9 ? '0' + (1 + date.getMonth()) : (1 + date.getMonth()));
+			} else {
+				this.getView().getModel().read("/" + path, {
+					urlParameters: {
+						'$expand': 'To_Items'
+					},
+					success: function(data) {
+						var header = {
+							Claimid: data.Claimid,
+							Claimno: data.Claimno,
+							Cmonth: data.Cmonth,
+							Cyear: data.Cyear,
+							Docstat: data.Docstat,
+							Pernr: data.Pernr,
+							Total: data.Total
+						};
+						that.getView().getModel("local").setProperty("/header", header);
+						data.To_Items.results.forEach(function(item, index) {
+							var date = new Date(item.Createdate);
+							//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+							data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
+						});
+						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
+						that.getView().byId('idMonth').setSelectedKey(data.Cmonth);
+						that.getView().byId('idYear').setSelectedKey(data.CYear);
+					},
+					error: function(err) {
+						MessageToast.show("Loading Failed");
+					}
+				});
+			}
+		},
+		onDateChange: function(oEvent) {
+			var month = this.getView().byId('idMonth').getSelectedKey();
+			month = parseInt(month) - 1;
+			var year = this.getView().byId('idYear').getSelectedKey();
 			this.getView().getModel("local").setProperty("/date", {
-				minDate: new Date(date.getFullYear(), date.getMonth(), 1),
-				maxDate: new Date(date.getFullYear(), date.getMonth() + 1, 0)
+				minDate: new Date(year, month, 1),
+				maxDate: new Date(year, month + 1, 0)
 			});
-			this.getView().byId('idMonth').setSelectedKey(date.getMonth() < 9 ? '0' + (1 + date.getMonth()) : (1 + date.getMonth()));
 		},
 		aItems: [], // changes by Surya 06.12.2020
 		onAddRow: function() {
 			var month = this.getView().byId('idMonth').getSelectedKey();
-			var date = new Date();
+			var year = this.getView().byId('idYear').getSelectedKey();
+			var date = new Date(year, parseInt(month) - 1, 1);
 			// var record = this.getView().getModel("local").getProperty("/record");
 			var record = {
-				"Createdate": this.formatter.getFormattedDate(0),
+				"Createdate": this.formatter.getSAPFormattedDate(date),
 				"ClaimAmount": "0.00",
 				"Wagetype": "2509",
 				"ClaimDate": "",
@@ -128,7 +158,7 @@ sap.ui.define([
 					}
 					var date = item.Createdate.split(".");
 					itemsPayload.push({
-						"Createdate": new Date(date[2] + "/" + date[1] + "/" + date[0]), //blank
+						"Createdate": new Date(date[2] + "." + date[1] + "." + date[0]), //blank
 						"Wagetype": item.Wagetype, //screen - table
 						"TimeStart": item.TimeStart, //screen - table
 						"TimeEnd": item.TimeEnd, //screen - table
@@ -170,27 +200,36 @@ sap.ui.define([
 			var items = this.getView().getModel("local").getProperty("/tableData");
 			var deleted = this.itemCrudMap.get("Delete");
 			var updated = this.itemCrudMap.get("Update");
+			deleted.forEach(function(item) {
+				that.oDataModel.remove("/ClaimItemSet('" + item + "')", {
+					success: function(data) {
+						that.itemCrudMap.set("Delete", new Set());
+						MessageToast.show("Delete Success");
+						that.getView().byId("idonSave").setEnabled(false);
+						that.getView().byId("idonSubmit").setEnabled(true);
+					},
+					error: function(oError) {
+						MessageToast.show("Error In Delete");
+						that.getView().byId("idonSave").setEnabled(true);
+						that.getView().byId("idonSubmit").setEnabled(false);
+					}
+				});
+			});
 			items.forEach(function(item) {
-				if (deleted.has(item.ItemId)) {
-					that.oDataModel.delete("/ClaimItemSet('" + item.ItemId + "')", {
-						method: "DELETE",
-						success: function(data) {
-							that.itemCrudMap.set("Delete", new Set());
-							MessageToast.show("Delete Success");
-						},
-						error: function(oError) {
-							MessageToast.show("Error In Delete");
-						}
-					});
-				} else if (updated.has(item.ItemId)) {
+				var date = item.Createdate.split(".");
+				item.Createdate = new Date(date[2] + "." + date[1] + "." + date[0]);
+				if (updated.has(item.ItemId)) {
 					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
-						method: "PUT",
 						success: function(data) {
 							that.itemCrudMap.set("Update", new Set());
 							MessageToast.show("Update Success");
+							that.getView().byId("idonSave").setEnabled(false);
+							that.getView().byId("idonSubmit").setEnabled(true);
 						},
 						error: function(oError) {
 							MessageToast.show("Error In Update");
+							that.getView().byId("idonSave").setEnabled(true);
+							that.getView().byId("idonSubmit").setEnabled(false);
 						}
 					});
 				} else if (!item.ItemId) {
@@ -198,9 +237,13 @@ sap.ui.define([
 					that.oDataModel.create("/ClaimItemSet", item, {
 						success: function(data) {
 							MessageToast.show("New Item Added");
+							that.getView().byId("idonSave").setEnabled(false);
+							that.getView().byId("idonSubmit").setEnabled(true);
 						},
 						error: function(oError) {
 							MessageToast.show("Error New Items");
+							that.getView().byId("idonSave").setEnabled(true);
+							that.getView().byId("idonSubmit").setEnabled(false);
 						}
 					});
 				}
