@@ -19,6 +19,7 @@ sap.ui.define([
 				var selectedItem = oEvent.getParameter("listItem");
 				var sPath = selectedItem.getBindingContextPath();
 				var sIndex = sPath.split("/")[sPath.split("/").length - 1];
+				this.getView().getModel("local").setProperty("/header/Claimno", selectedItem.getTitle());
 				this.oRouter.navTo("main",{
 					claimid: sIndex
 				});

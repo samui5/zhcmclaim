@@ -20,7 +20,7 @@ sap.ui.define([
 			this.itemCrudMap.set("Update", new Set());
 			var currentYear = (new Date()).getFullYear();
 			var yearList = [];
-			for (var i = 0; i < 20; i++) {
+			for (var i = 0; i < 1; i++) {
 				yearList.push({
 					year: currentYear - i
 				});
@@ -29,32 +29,36 @@ sap.ui.define([
 				success: function(data) {
 					that.oLocalModel.setProperty("/empId", data.results[0].Text);
 					that.oLocalModel.setProperty("/calendar/years", yearList);
-					that.getView().getModel("local").setProperty("/header", {
-						Pernr: "",
-						Docstat: ""
-					});
-					var date = new Date();
-					that.getView().getModel("local").setProperty("/date", {
-						minDate: new Date(date.getFullYear(), date.getMonth(), 1),
-						maxDate: new Date(date.getFullYear(), date.getMonth() + 1, 0)
-					});
-					that.getView().byId('idMonth').setSelectedKey(date.getMonth() < 9 ? '0' + (1 + date.getMonth()) : (1 + date.getMonth()));
 				},
 				error: function(err) {
 					sap.m.MessageToast.show("Loading failed " + err);
 				}
 
 			});
+			
 		},
-		onNavButtonPress : function(){
+		onNavButtonPress: function() {
 			this.oRouter.navTo("worklist");
 		},
 		formatter: formatter,
-		_onRouteMatched: function() {
-
+		_onRouteMatched: function(oEvent) {
+			var date = new Date();
+			var that = this;
+			var path = oEvent.getParameter("arguments").claimid;
+			this.getView().getModel().read("/" + path + "/To_Items",{
+				success: function(data){
+					that.getView().getModel("local").setProperty("/tableData", data.results);
+				}
+			});
+			this.getView().getModel("local").setProperty("/date", {
+				minDate: new Date(date.getFullYear(), date.getMonth(), 1),
+				maxDate: new Date(date.getFullYear(), date.getMonth() + 1, 0)
+			});
+			this.getView().byId('idMonth').setSelectedKey(date.getMonth() < 9 ? '0' + (1 + date.getMonth()) : (1 + date.getMonth()));
 		},
 		aItems: [], // changes by Surya 06.12.2020
 		onAddRow: function() {
+			var month = this.getView().byId('idMonth').getSelectedKey();
 			var date = new Date();
 			// var record = this.getView().getModel("local").getProperty("/record");
 			var record = {
@@ -135,7 +139,7 @@ sap.ui.define([
 						data.To_Items.results.forEach(function(item, index) {
 							var date = new Date(item.Createdate);
 							//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
-							data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);                  
+							data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
 						});
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId("idonSave").setEnabled(false);
