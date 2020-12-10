@@ -36,7 +36,43 @@ sap.ui.define([
 		_onRouteMatched: function(oEvent) {
 			var that = this;
 			var path = oEvent.getParameter("arguments").claimid;
-			var months = this.oLocalModel.getProperty("/calendar/monthCollection");
+			var months = this.oLocalModel.setProperty("/calendar/monthCollection", [{
+				"abbreviation": "1",
+				"name": "January"
+			}, {
+				"abbreviation": "2",
+				"name": "February"
+			}, {
+				"abbreviation": "3",
+				"name": "March"
+			}, {
+				"abbreviation": "4",
+				"name": "April"
+			}, {
+				"abbreviation": "5",
+				"name": "May"
+			}, {
+				"abbreviation": "6",
+				"name": "June"
+			}, {
+				"abbreviation": "7",
+				"name": "July"
+			}, {
+				"abbreviation": "8",
+				"name": "August"
+			}, {
+				"abbreviation": "9",
+				"name": "September"
+			}, {
+				"abbreviation": "10",
+				"name": "October"
+			}, {
+				"abbreviation": "11",
+				"name": "November"
+			}, {
+				"abbreviation": "12",
+				"name": "December"
+			}]);
 			if (path === "new") {
 				that.getView().getModel("local").setProperty("/header", {
 					"Pernr": "{unloaded}",
@@ -162,6 +198,13 @@ sap.ui.define([
 		},
 		onSave: function() {
 			var header = this.getView().getModel("local").getProperty("/header");
+			var items = this.getView().getModel("local").getProperty("/tableData");
+			for (var i = 0; i < items.length; i++) {
+				if (parseFloat(items[i].ClaimAmount) === 0) {
+					MessageBox.alert("Claim amount can't be 0");
+					return;
+				}
+			}
 			if (header.Claimid) {
 				this.onUpsert(header.Claimid);
 			} else {
@@ -174,7 +217,6 @@ sap.ui.define([
 					"To_Items": []
 				};
 				var itemsPayload = [];
-				var items = this.getView().getModel("local").getProperty("/tableData");
 				if (items.length === 0) {
 					MessageBox.alert("Please add a item first");
 					return;
