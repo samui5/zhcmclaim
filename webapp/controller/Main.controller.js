@@ -109,7 +109,6 @@ sap.ui.define([
 				"Createdate": new Date(),
 				"ClaimAmount": "0.00",
 				"Wagetype": "2509",
-				"ClaimDate": "",
 				"TimeStart": "00:00",
 				"TimeEnd": (date.getHours()) + ":" + date.getMinutes(),
 				"Status": "",
@@ -159,11 +158,11 @@ sap.ui.define([
 					}
 					//var date = item.Createdate.split(".");
 					var claimDate = new Date();
-					claimDate.setDate(item.Createdate);
-					
+					claimDate.setTime(item.Createdate);
+					claimDate.setDate(claimDate.getDate() + 1);
 					itemsPayload.push({
 						//"Createdate": new Date(date[2] + "." + date[1] + "." + date[0]), //blank
-						"Createdate": item.Createdate,
+						"Createdate": claimDate,
 						"Wagetype": item.Wagetype, //screen - table
 						"TimeStart": item.TimeStart, //screen - table
 						"TimeEnd": item.TimeEnd, //screen - table
@@ -184,11 +183,11 @@ sap.ui.define([
 							Docstat: data.Docstat
 						};
 						that.getView().getModel("local").setProperty("/header", header);
-						data.To_Items.results.forEach(function(item, index) {
-							var date = new Date(item.Createdate);
-							//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
-							data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
-						});
+						// data.To_Items.results.forEach(function(item, index) {
+						// 	var date = new Date(item.Createdate);
+						// 	//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+						// 	data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
+						// });
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId("idonSave").setEnabled(false);
 						that.getView().byId("idonSubmit").setEnabled(true);
@@ -221,8 +220,12 @@ sap.ui.define([
 				});
 			});
 			items.forEach(function(item) {
-				var date = item.Createdate.split(".");
-				item.Createdate = new Date(date[2] + "." + date[1] + "." + date[0]);
+				//var date = item.Createdate.split(".");
+				//item.Createdate = new Date(date[2] + "." + date[1] + "." + date[0]);
+				var claimDate = new Date();
+				claimDate.setTime(item.Createdate);
+				claimDate.setDate(claimDate.getDate() + 1);
+				item.Createdate = claimDate;
 				if (updated.has(item.ItemId)) {
 					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
 						success: function(data) {
