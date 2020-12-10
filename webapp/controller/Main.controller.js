@@ -64,8 +64,8 @@ sap.ui.define([
 						'$expand': 'To_Items'
 					},
 					success: function(data) {
-						var d = new Date();
-						d.setTime(data.CreatedOn.split("(")[1].split(")")[0]);
+						//var d = new Date();
+						//d.setTime(data.CreatedOn.split("(")[1].split(")")[0]);
 						var header = {
 							Claimid: data.Claimid,
 							Claimno: data.Claimno,
@@ -73,15 +73,16 @@ sap.ui.define([
 							Cyear: data.Cyear,
 							Docstat: data.Docstat,
 							Pernr: data.Pernr,
-							Total: data.Total,
-							CreatedOn: that.formatter.getSAPFormattedDate(d)
+							Total: data.Total
+							// ,
+							// CreatedOn: that.formatter.getSAPFormattedDate(d)
 						};
 						that.getView().getModel("local").setProperty("/header", header);
-						data.To_Items.results.forEach(function(item, index) {
-							var date = new Date(item.Createdate);
-							//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
-							data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
-						});
+						// data.To_Items.results.forEach(function(item, index) {
+						// 	var date = new Date(item.Createdate);
+						// 	//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+						// 	data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
+						// });
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId('idMonth').setSelectedKey(data.Cmonth);
 						that.getView().byId('idYear').setSelectedKey(data.CYear);
@@ -108,7 +109,7 @@ sap.ui.define([
 			var date = new Date(year, parseInt(month) - 1, 1);
 			// var record = this.getView().getModel("local").getProperty("/record");
 			var record = {
-				"Createdate": this.formatter.getSAPFormattedDate(date),
+				"Createdate": new Date(),
 				"ClaimAmount": "0.00",
 				"Wagetype": "2509",
 				"ClaimDate": "",
@@ -159,9 +160,13 @@ sap.ui.define([
 						item.Purpose = "";
 						item.Destination = "";
 					}
-					var date = item.Createdate.split(".");
+					//var date = item.Createdate.split(".");
+					var claimDate = new Date();
+					claimDate.setDate(item.Createdate);
+					
 					itemsPayload.push({
-						"Createdate": new Date(date[2] + "." + date[1] + "." + date[0]), //blank
+						//"Createdate": new Date(date[2] + "." + date[1] + "." + date[0]), //blank
+						"Createdate": item.Createdate,
 						"Wagetype": item.Wagetype, //screen - table
 						"TimeStart": item.TimeStart, //screen - table
 						"TimeEnd": item.TimeEnd, //screen - table
