@@ -81,7 +81,8 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 
     read table it_key_tab into data(ls_key) index 1.
 
-    select * from zhcm_claim_attch into corresponding fields of table @et_entityset where attach_id = @ls_key-value.
+    select item_id, ATTACHMENT from zhcm_claim_attch into corresponding fields of table @et_entityset where item_id in
+        ( select item_id from zhcm_claim_item WHERE claimid = @ls_key-value ).
 
   endmethod.
 
