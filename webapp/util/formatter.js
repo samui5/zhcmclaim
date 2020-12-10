@@ -12,6 +12,16 @@ sap.ui.define([],
 				};
 				return num === "" ? text["0"] : text[num];
 			},
+			convertPDFToUrl: function(vContent){
+				var decodedPdfContent = atob(vContent.replace("data:application/pdf;base64,",""));
+				var byteArray = new Uint8Array(decodedPdfContent.length);
+				for(var i=0; i<decodedPdfContent.length; i++){
+				    byteArray[i] = decodedPdfContent.charCodeAt(i);
+				}
+				var blob = new Blob([byteArray.buffer], { type: 'application/pdf' });
+				jQuery.sap.addUrlWhitelist("blob");
+				return URL.createObjectURL(blob);
+			},
 			statusState: function(num) {
 				var state = {
 					"": sap.ui.core.ValueState.Information,

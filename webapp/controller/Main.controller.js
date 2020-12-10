@@ -326,114 +326,29 @@ sap.ui.define([
 		// Start of changes  by Surya 06.12.2020
 		onSelectPhoto: function(oEvent) {
 			var that = this;
-			if (!that.photoPopup) {
-				that.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", that);
-				that.getView().addDependent(that.photoPopup);
-			}
+			that.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", that);
+			that.getView().addDependent(that.photoPopup);
 			that.photoPopup.open();
 			// get the index of the row for which the attachment button has been clicked
-			var path = oEvent.getSource().mBindingInfos.text.binding.getBindings()[0].getContext().getPath();
-			this.selectedIndex = path.split("/", 3)[2];
+			this.itemPath = oEvent.getSource().getParent().getBindingContextPath();
+			var attachs = this.getView().getModel("local").getProperty(this.itemPath + "/To_Attachments");
+			if(attachs.length > 0){
+				var attach = attachs[0];
+				var oControl = that.photoPopup.getAggregation("content")[1];
+				that.img.Content = attach.Content;
+				that.img.Stream = attach.Stream;
+				oControl.setSource(that.img.Stream);
+			}
 		},
 
 		selectedIndex: null,
 		handleUploadPress: function(oEvent) {
-			var oFileUploader = sap.ui.getCore().byId("idCoUploader");
-			// if (!oFileUploader.getValue()) {
-			//   sap.m.MessageToast.show("Choose a file first");
-			//   return;
-			// }
-			if (oFileUploader.getValue()) {
-				this.flag = 'U';
-				var file = jQuery.sap.domById(oFileUploader.getId() + "-fu").files[0];
-
-				this.fileName = file.name;
-				this.fileType = file.type;
-
-				var reader = new FileReader();
-				reader.onload = function(e) {
-					var oFile = {};
-					oFile.imgContent = e.currentTarget.result;
-					// getting the attachment content into local json model
-					this.aItems[this.selectedIndex].Content = oFile.imgContent;
-					//this.aItems[this.selectedIndex].To_Attachments.push({ Content : oFile.imgContent});
-					//show uploaded picture
-					var oModelPhoto = new JSONModel();
-					oModelPhoto.setData(this.aItems[this.selectedIndex]);
-					this.getView().setModel(oModelPhoto, "photo");
-					//that.savePicToDb(that.fileName, that.fileType, picture);
-					//if picture already exists update the picture
-					// if (that.selRow.Picture==="X") {
-					//   var photoId = that.getView().getModel("photo").getData().id;
-					//   var payload = {
-					//     id: photoId,
-					//     Content: picture,
-					//     name: that.fileName,
-					//     type:that.fileType
-					//   };
-					//   $.post('/updatePhoto', payload)
-					//     .done(function(data, status) {
-					//       sap.m.MessageToast.show("Photo updated");
-					//       debugger;
-					//       var oModelPhoto = new JSONModel();
-					//       oModelPhoto.setData(payload);
-					//       that.getView().setModel(oModelPhoto, "photo");
-					//     })
-					//     .fail(function(xhr, status, error) {
-					//       sap.m.MessageBox.error("Failed to update photo");
-					//     });
-					// } else{
-					// // if picture doesn't exist then create new record
-					//     var payload = {
-					//       CustomerOrderId: that.selRow.id,
-					//       Content: picture,
-					//       Filename: that.fileName,
-					//       Filetype: that.fileType
-					//     }
-					//     that.ODataHelper.callOData(that.getOwnerComponent().getModel(), "/Photos",
-					//                       "POST", {}, payload, that)
-					//       .then(function(oData) {
-					//           sap.m.MessageToast.show("Photo uploaded Successfully");
-					//           // update picture flag in customer orders
-					//           debugger;
-					//     //show uploaded picture
-					//           var oModelPhoto = new JSONModel();
-					//           oModelPhoto.setData(oData);
-					//           that.getView().setModel(oModelPhoto, "photo");
-					//    // update photo flag in customer order
-					//           that2.selRow.Picture = "X";
-					//           var payload = {
-					//             id: that2.selRow.id,
-					//             PhotoValue : that2.selRow.Picture
-					//           };
-					//           $.post('/updatePhotoFlag', payload)
-					//   					.done(function(data, status) {
-					//   						sap.m.MessageToast.show("Data updated");
-					//   					})
-					//   					.fail(function(xhr, status, error) {
-					//   						sap.m.MessageBox.error("Failed to update");
-					//   					});
-					//     // call clear to update the color of the image
-					//             that2.onClear();
-					//           that2.getView().setBusy(false);
-					//         }).catch(function(oError) {
-					//           that2.getView().setBusy(false);
-					//           var oPopover = that.getErrorMessage(oError);
-					//         });
-					//   ;}
-				}.bind(this);
-				reader.readAsDataURL(file);
-			} else if (this.flag === 'C') {
-				var snapId = 'Capture';
-				//	this.savePicToDb(this.attachName,
-				//		"jpeg",
-				//		document.getElementById(snapId).toDataURL())
-			} else {
-				sap.m.MessageToast.show("Upload or capture Picture");
-				return;
-			}
+			this.getView().getModel("local").setProperty(this.itemPath + "/To_Attachments",[JSON.parse(JSON.stringify(this.img))]);
+			this.img = {};
+			this.photoPopup.close();
+			this.photoPopup.destroy();
+			this.itemPath = "";
 		},
-
 		// close photo upload popup
 		handleClosePress: function(oEvent) {
 			if (!this.photoPopup) {
@@ -441,42 +356,38 @@ sap.ui.define([
 			}
 			var oFileUploader = sap.ui.getCore().byId("idCoUploader");
 			oFileUploader.setValue("");
-			// var oVBox = this.getView().getDependents()[0].getContent()[0].getContent()[0];
-			//oVBox.getItems()[3].destroyLayoutData();
-			// oVBox.getItems()[3].setProperty("content", "");
+			this.img = {};
 			this.photoPopup.close();
+			this.photoPopup.destroy();
 		},
-
+		_onFileUploaderFileSizeExceed: function(){
+			MessageBox.error("File Size should not exceed 5 MB");
+		},
 		// End of changes  by Surya 06.12.2020
-		// onUploadChange: function(oEvent) {
-		// 	debugger;
-		// 	var files = oEvent.getParameter("files");
-		// 	var that = this;
-		// 	if (!files.length) {
-
-		// 	} else {
-		// 		for (var i = 0; i < files.length; i++) {
-		// 			var reader = new FileReader();
-		// 			reader.onload = function(e) {
-		// 				try {
-		// 					var vContent = e.currentTarget.result; //.result.replace("data:image/jpeg;base64,", "");
-		// 					console.log(vContent);
-		// 				} catch (e) {
-
-		// 				}
-		// 			};
-		// 			// var img = {
-		// 			// 	"Claimno" : "000000",
-		// 			// 	"Pernr" : "0000",
-		// 			// 	"Seqnr" : "000",
-		// 			// 	"Type" : "document-pdf",
-		// 			// 	"Content" : vContent
-		// 			// };
-		// 			reader.readAsDataURL(files[i]);
-
-		// 		}
-		// 	}
-		// },
+		img: {"Stream": "", "Content": ""},
+		onUploadChange: function(oEvent) {
+			var files = oEvent.getParameter("files");
+			var that = this;
+			if (!files.length) {
+	
+			} else {
+				for (var i = 0; i < files.length; i++) {
+					var reader = new FileReader();
+					var oControl = oEvent.getSource().getParent().getAggregation("content")[1];
+					reader.onload = function(e) {
+						try {
+							var vContent = e.currentTarget.result; //.result.replace("data:image/jpeg;base64,", "");
+							that.img.Content = vContent;
+							that.img.Stream = that.formatter.convertPDFToUrl(vContent);
+							oControl.setSource(that.img.Stream);
+						} catch (e) {
+						
+						}
+					};
+					reader.readAsDataURL(files[i]);
+				}
+			}
+		},
 		onDeleteRow: function(oEvent) {
 			var that = this;
 			var oTable = oEvent.getSource().getParent().getParent();
