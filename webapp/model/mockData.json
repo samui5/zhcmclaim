@@ -25,7 +25,7 @@
 		"Total": "0.00"
 	},
 	"calendar": {
-		"monthCollection": [{
+		"months": [{
 			"abbreviation": "1",
 			"name": "January"
 		}, {

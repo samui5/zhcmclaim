@@ -36,43 +36,7 @@ sap.ui.define([
 		_onRouteMatched: function(oEvent) {
 			var that = this;
 			var path = oEvent.getParameter("arguments").claimid;
-			var months = this.oLocalModel.setProperty("/calendar/monthCollection", [{
-				"abbreviation": "1",
-				"name": "January"
-			}, {
-				"abbreviation": "2",
-				"name": "February"
-			}, {
-				"abbreviation": "3",
-				"name": "March"
-			}, {
-				"abbreviation": "4",
-				"name": "April"
-			}, {
-				"abbreviation": "5",
-				"name": "May"
-			}, {
-				"abbreviation": "6",
-				"name": "June"
-			}, {
-				"abbreviation": "7",
-				"name": "July"
-			}, {
-				"abbreviation": "8",
-				"name": "August"
-			}, {
-				"abbreviation": "9",
-				"name": "September"
-			}, {
-				"abbreviation": "10",
-				"name": "October"
-			}, {
-				"abbreviation": "11",
-				"name": "November"
-			}, {
-				"abbreviation": "12",
-				"name": "December"
-			}]);
+			var months = this.oLocalModel.getProperty("/calendar/months");
 			if (path === "new") {
 				that.getView().getModel("local").setProperty("/header", {
 					"Pernr": "{unloaded}",
@@ -115,9 +79,9 @@ sap.ui.define([
 						yearList = [{
 							year: data.Cyear
 						}];
-						monthList = [months[parseInt(data.Cmonth) - 1]];
+						// monthList = [months[parseInt(data.Cmonth) - 1]];
 						that.oLocalModel.setProperty("/calendar/years", yearList);
-						that.oLocalModel.setProperty("/calendar/months", monthList);
+						// that.oLocalModel.setProperty("/calendar/months", monthList);
 						var header = {
 							Claimid: data.Claimid,
 							Claimno: data.Claimno,
