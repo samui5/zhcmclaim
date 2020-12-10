@@ -64,8 +64,6 @@ sap.ui.define([
 						'$expand': 'To_Items'
 					},
 					success: function(data) {
-						//var d = new Date();
-						//d.setTime(data.CreatedOn.split("(")[1].split(")")[0]);
 						var header = {
 							Claimid: data.Claimid,
 							Claimno: data.Claimno,
@@ -73,9 +71,8 @@ sap.ui.define([
 							Cyear: data.Cyear,
 							Docstat: data.Docstat,
 							Pernr: data.Pernr,
-							Total: data.Total
-							// ,
-							// CreatedOn: that.formatter.getSAPFormattedDate(d)
+							Total: data.Total,
+							CreatedOn: that.formatter.getSAPFormattedDate(data.CreatedOn)
 						};
 						that.getView().getModel("local").setProperty("/header", header);
 						// data.To_Items.results.forEach(function(item, index) {
