@@ -36,7 +36,43 @@ sap.ui.define([
 		_onRouteMatched: function(oEvent) {
 			var that = this;
 			var path = oEvent.getParameter("arguments").claimid;
-			var months = this.oLocalModel.getProperty("/calendar/months");
+			var months = [{
+				"abbreviation": "1",
+				"name": "January"
+			}, {
+				"abbreviation": "2",
+				"name": "February"
+			}, {
+				"abbreviation": "3",
+				"name": "March"
+			}, {
+				"abbreviation": "4",
+				"name": "April"
+			}, {
+				"abbreviation": "5",
+				"name": "May"
+			}, {
+				"abbreviation": "6",
+				"name": "June"
+			}, {
+				"abbreviation": "7",
+				"name": "July"
+			}, {
+				"abbreviation": "8",
+				"name": "August"
+			}, {
+				"abbreviation": "9",
+				"name": "September"
+			}, {
+				"abbreviation": "10",
+				"name": "October"
+			}, {
+				"abbreviation": "11",
+				"name": "November"
+			}, {
+				"abbreviation": "12",
+				"name": "December"
+			}];
 			if (path === "new") {
 				that.getView().getModel("local").setProperty("/header", {
 					"Pernr": "{unloaded}",
@@ -194,7 +230,7 @@ sap.ui.define([
 					var claimDate = new Date();
 					claimDate.setTime(item.Createdate);
 					claimDate.setDate(claimDate.getDate() + 1);
-					if(item.To_Attachments.length > 0){
+					if (item.To_Attachments.length > 0) {
 						delete item.To_Attachments[0].Stream;
 						item.To_Attachments[0].Content = btoa(item.To_Attachments[0].Content);
 					}
@@ -336,7 +372,7 @@ sap.ui.define([
 			// get the index of the row for which the attachment button has been clicked
 			this.itemPath = oEvent.getSource().getParent().getBindingContextPath();
 			var attachs = this.getView().getModel("local").getProperty(this.itemPath + "/To_Attachments");
-			if(attachs.length > 0){
+			if (attachs.length > 0) {
 				var attach = attachs[0];
 				var oControl = that.photoPopup.getAggregation("content")[1];
 				that.img.Content = attach.Content;
@@ -347,7 +383,7 @@ sap.ui.define([
 
 		selectedIndex: null,
 		handleUploadPress: function(oEvent) {
-			this.getView().getModel("local").setProperty(this.itemPath + "/To_Attachments",[JSON.parse(JSON.stringify(this.img))]);
+			this.getView().getModel("local").setProperty(this.itemPath + "/To_Attachments", [JSON.parse(JSON.stringify(this.img))]);
 			this.img = {};
 			this.photoPopup.close();
 			this.photoPopup.destroy();
@@ -364,16 +400,19 @@ sap.ui.define([
 			this.photoPopup.close();
 			this.photoPopup.destroy();
 		},
-		_onFileUploaderFileSizeExceed: function(){
+		_onFileUploaderFileSizeExceed: function() {
 			MessageBox.error("File Size should not exceed 5 MB");
 		},
 		// End of changes  by Surya 06.12.2020
-		img: {"Stream": "", "Content": ""},
+		img: {
+			"Stream": "",
+			"Content": ""
+		},
 		onUploadChange: function(oEvent) {
 			var files = oEvent.getParameter("files");
 			var that = this;
 			if (!files.length) {
-	
+
 			} else {
 				for (var i = 0; i < files.length; i++) {
 					var reader = new FileReader();
@@ -385,7 +424,7 @@ sap.ui.define([
 							that.img.Stream = that.formatter.convertPDFToUrl(vContent);
 							oControl.setSource(that.img.Stream);
 						} catch (e) {
-						
+
 						}
 					};
 					reader.readAsDataURL(files[i]);
