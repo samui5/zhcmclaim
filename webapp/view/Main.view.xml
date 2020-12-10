@@ -1,8 +1,8 @@
-<mvc:View controllerName="hcm.claim.controller.Main" xmlns:core="sap.ui.core" xmlns:html="http://www.w3.org/1999/xhtml" 
+<mvc:View controllerName="hcm.claim.controller.Main" xmlns:core="sap.ui.core" xmlns:html="http://www.w3.org/1999/xhtml"
 	xmlns:mvc="sap.ui.core.mvc" xmlns:unified="sap.ui.unified" displayBlock="true" xmlns="sap.m" xmlns:f="sap.ui.layout.form">
 	<App>
 		<pages>
-			<Page title="{i18n>title}" showNavButton = "true" navButtonPress = "onNavButtonPress" navButtonText = "Back">
+			<Page title="{i18n>title}" showNavButton="true" navButtonPress="onNavButtonPress" navButtonText="Back">
 				<content>
 					<!--<List items="{/ClaimSet}">-->
 					<!--	<DisplayListItem label="{Pernr}" value="{Createdate}"></DisplayListItem>-->
@@ -16,10 +16,7 @@
 						<!--		state="{path:'local>/header/Docstat', formatter : '.formatter.statusState'}" icon="{path:'local>/header/Docstat', formatter : '.formatter.statusIcon'}"></ObjectStatus>-->
 						<!--</firstStatus>-->
 						<attributes>
-							<ObjectAttribute
-								title= "Create Date"
-								text="{path: 'local>/header/CreatedOn'}">
-							</ObjectAttribute>
+							<ObjectAttribute title="Create Date" text="{path: 'local>/header/CreatedOn'}"></ObjectAttribute>
 						</attributes>
 					</ObjectHeader>
 					<f:SimpleForm editable="true">
@@ -81,16 +78,20 @@
 										<core:Item key="2513" text="Hardship"/>
 									</Select>
 									<DatePicker dateValue="{path:'local>Createdate'}" displayFormat="dd.MM.yyyy" valueFormat="yyyyMMdd" change="onLiveChange"
-										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" minDate = "{local>/date/minDate}" 
-										maxDate = "{local>/date/maxDate}"/>
+										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" minDate="{local>/date/minDate}"
+										maxDate="{local>/date/maxDate}"/>
 									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="Start time"
 										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
 									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="End time"
 										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
-									<Input value="{local>Purpose}" enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledWagetype'}" liveChange="onLiveChange"/>
-									<Input value="{local>Destination}" enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledWagetype'}" liveChange="onLiveChange"/>
+									<Input value="{local>Purpose}"
+										enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledWagetype'}"
+										liveChange="onLiveChange"/>
+									<Input value="{local>Destination}"
+										enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledWagetype'}"
+										liveChange="onLiveChange"/>
 									<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"
-										text="{path:'local>Status', formatter : '.formatter.statusText'}" state="{path:'local>Status', formatter : '.formatter.statusState'}"/>
+										state="{path:'local>Status', formatter : '.formatter.statusState'}"/>
 									<Input value="{local>ClaimAmount}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" liveChange="onLiveChange"/>
 									<Button icon="sap-icon://attachment" text="{=${local>To_Attachments}.length===0? 'Attach' : 'Attached' }"
 										type="{=${local>To_Attachments}.length===0 ? 'Reject' : 'Accept' }" press="onSelectPhoto"/>

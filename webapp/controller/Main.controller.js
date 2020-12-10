@@ -9,7 +9,6 @@ sap.ui.define([
 	"use strict";
 	return Controller.extend("hcm.claim.controller.Main", {
 		onInit: function() {
-			var that = this;
 			this.oRouter = this.getOwnerComponent().getRouter();
 			this.oRouter.getRoute("main").attachMatched(this._onRouteMatched, this);
 			this.oDataModel = this.getOwnerComponent().getModel();
@@ -18,95 +17,66 @@ sap.ui.define([
 			this.itemCrudMap = new Map();
 			this.itemCrudMap.set("Delete", new Set());
 			this.itemCrudMap.set("Update", new Set());
-			this.oDataModel.read("/ValueHelpSet", {
-				success: function(data) {
-					that.oLocalModel.setProperty("/empId", data.results[0].Text);
-				},
-				error: function(err) {
-					sap.m.MessageToast.show("Loading failed " + err);
-				}
-
-			});
-
 		},
 		onNavButtonPress: function() {
-			this.oRouter.navTo("worklist");
+			this.oRouter.navTo("master");
 		},
 		formatter: formatter,
 		_onRouteMatched: function(oEvent) {
 			var that = this;
 			var path = oEvent.getParameter("arguments").claimid;
-			var months = [{
-				"abbreviation": "1",
-				"name": "January"
-			}, {
-				"abbreviation": "2",
-				"name": "February"
-			}, {
-				"abbreviation": "3",
-				"name": "March"
-			}, {
-				"abbreviation": "4",
-				"name": "April"
-			}, {
-				"abbreviation": "5",
-				"name": "May"
-			}, {
-				"abbreviation": "6",
-				"name": "June"
-			}, {
-				"abbreviation": "7",
-				"name": "July"
-			}, {
-				"abbreviation": "8",
-				"name": "August"
-			}, {
-				"abbreviation": "9",
-				"name": "September"
-			}, {
-				"abbreviation": "10",
-				"name": "October"
-			}, {
-				"abbreviation": "11",
-				"name": "November"
-			}, {
-				"abbreviation": "12",
-				"name": "December"
-			}];
+			var currentDate = new Date();
+			var currentYear = currentDate.getFullYear();
+			var currentMonth = currentDate.getMonth();
+			var yearList = [];
+			var monthList = [];
 			if (path === "new") {
-				that.getView().getModel("local").setProperty("/header", {
+				that.oLocalModel.setProperty("/header", {
 					"Pernr": "{unloaded}",
 					"Claimno": "{unassigned}",
 					"Claimid": "",
 					"Docstat": ""
 				});
-				var currentDate = new Date();
-				var currentYear = currentDate.getFullYear();
-				var currentMonth = currentDate.getMonth();
-				var yearList = [];
-				var monthList = [];
-				if (currentMonth === 0) {
-					yearList = [{
-						year: currentYear
-					}, {
-						year: currentYear - 1
-					}];
-					monthList = [months[currentMonth], months[11]];
-				} else {
-					yearList = [{
-						year: currentYear
-					}];
-					monthList = [months[currentMonth], months[currentMonth - 1]];
-				}
-				that.oLocalModel.setProperty("/calendar/years", yearList);
-				that.oLocalModel.setProperty("/calendar/months", monthList);
-				that.getView().getModel("local").setProperty("/tableData", []);
-				this.getView().getModel("local").setProperty("/date", {
-					minDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-					maxDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+				this.oDataModel.read("/ValueHelpSet", {
+					success: function(data) {
+						var months = that.oLocalModel.getProperty("/calendar/monthCollection");
+						if (currentMonth === 0) {
+							yearList = [{
+								year: currentYear
+							}, {
+								year: currentYear - 1
+							}];
+							monthList = [months[currentMonth], months[11]];
+						} else {
+							yearList = [{
+								year: currentYear
+							}];
+							monthList = [months[currentMonth], months[currentMonth - 1]];
+						}
+						that.oLocalModel.setProperty("/empId", data.results[0].Text);
+						that.oLocalModel.setProperty("/calendar/years", yearList);
+						that.oLocalModel.setProperty("/calendar/months", monthList);
+						that.getView().getModel("local").setProperty("/tableData", []);
+						that.getView().getModel("local").setProperty("/date", {
+							minDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+							maxDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
+						});
+						that.getView().byId('idMonth').setSelectedKey(currentDate.getMonth() + 1);
+					},
+					error: function(err) {
+						sap.m.MessageToast.show("Loading failed " + err);
+					}
 				});
-				this.getView().byId('idMonth').setSelectedKey(currentDate.getMonth() + 1);
+
 			} else {
+				this.oDataModel.read("/ValueHelpSet", {
+					success: function(data) {
+						that.oLocalModel.setProperty("/empId", data.results[0].Text);
+					},
+					error: function(err) {
+						sap.m.MessageToast.show("Loading failed " + err);
+					}
+				});
 				this.getView().getModel().read("/" + path, {
 					urlParameters: {
 						'$expand': 'To_Items'
@@ -115,9 +85,8 @@ sap.ui.define([
 						yearList = [{
 							year: data.Cyear
 						}];
-						// monthList = [months[parseInt(data.Cmonth) - 1]];
 						that.oLocalModel.setProperty("/calendar/years", yearList);
-						// that.oLocalModel.setProperty("/calendar/months", monthList);
+						that.oLocalModel.setProperty("/calendar/months", that.oLocalModel.getProperty("/calendar/monthCollection"));
 						var header = {
 							Claimid: data.Claimid,
 							Claimno: data.Claimno,
@@ -153,7 +122,7 @@ sap.ui.define([
 			var currentDate = new Date();
 			var month = this.getView().byId('idMonth').getSelectedKey();
 			month = parseInt(month) - 1;
-			if (currentDate.getMonth() === 0 && month === "12") {
+			if (currentDate.getMonth() === 0 && month === 11) {
 				this.getView().byId('idYear').setSelectedKey(currentDate.getFullYear() - 1);
 			}
 			var year = this.getView().byId('idYear').getSelectedKey();
@@ -165,6 +134,7 @@ sap.ui.define([
 		aItems: [], // changes by Surya 06.12.2020
 		onAddRow: function() {
 			var month = this.getView().byId('idMonth').getSelectedKey();
+			this.getView().byId('idMonth').setEnabled(false);
 			var year = this.getView().byId('idYear').getSelectedKey();
 			var date = new Date(year, parseInt(month) - 1, 1);
 			var currentDate = new Date();
