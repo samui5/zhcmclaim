@@ -13,7 +13,10 @@ sap.ui.define([
 		 */
 			onInit: function() {
 				this.oRouter = this.getOwnerComponent().getRouter();
-				//this.oRouter.getRoute("spiderman").attachMatched(this.herculis, this);
+				this.oRouter.getRoute("master").attachMatched(this.herculis, this);
+			},
+			herculis : function(){
+				this.getView().getModel().refresh(true);        
 			},
 			onNextItem: function(oEvent){
 				var selectedItem = oEvent.getParameter("listItem");

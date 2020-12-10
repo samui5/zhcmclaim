@@ -29,7 +29,7 @@
 								<core:Item key="{local>abbreviation}" text="{local>name}"/>
 							</Select>
 							<Label text="Year"></Label>
-							<Select id="idYear" width="25%" items="{local>/calendar/years}" enabled="{=${local>/header/Docstat}===''}" change="onDateChange">
+							<Select id="idYear" width="25%" items="{local>/calendar/years}" enabled="false" change="onDateChange">
 								<core:Item key="{local>year}" text="{local>year}"/>
 							</Select>
 						</f:content>

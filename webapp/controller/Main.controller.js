@@ -18,17 +18,9 @@ sap.ui.define([
 			this.itemCrudMap = new Map();
 			this.itemCrudMap.set("Delete", new Set());
 			this.itemCrudMap.set("Update", new Set());
-			var currentYear = (new Date()).getFullYear();
-			var yearList = [];
-			for (var i = 0; i < 1; i++) {
-				yearList.push({
-					year: currentYear - i
-				});
-			}
 			this.oDataModel.read("/ValueHelpSet", {
 				success: function(data) {
 					that.oLocalModel.setProperty("/empId", data.results[0].Text);
-					that.oLocalModel.setProperty("/calendar/years", yearList);
 				},
 				error: function(err) {
 					sap.m.MessageToast.show("Loading failed " + err);
@@ -44,6 +36,7 @@ sap.ui.define([
 		_onRouteMatched: function(oEvent) {
 			var that = this;
 			var path = oEvent.getParameter("arguments").claimid;
+			var months = this.oLocalModel.getProperty("/calendar/monthCollection");
 			if (path === "new") {
 				that.getView().getModel("local").setProperty("/header", {
 					"Pernr": "{unloaded}",
@@ -51,19 +44,44 @@ sap.ui.define([
 					"Claimid": "",
 					"Docstat": ""
 				});
+				var currentDate = new Date();
+				var currentYear = currentDate.getFullYear();
+				var currentMonth = currentDate.getMonth();
+				var yearList = [];
+				var monthList = [];
+				if (currentMonth === 0) {
+					yearList = [{
+						year: currentYear
+					}, {
+						year: currentYear - 1
+					}];
+					monthList = [months[currentMonth], months[11]];
+				} else {
+					yearList = [{
+						year: currentYear
+					}];
+					monthList = [months[currentMonth], months[currentMonth - 1]];
+				}
+				that.oLocalModel.setProperty("/calendar/years", yearList);
+				that.oLocalModel.setProperty("/calendar/months", monthList);
 				that.getView().getModel("local").setProperty("/tableData", []);
-				var date = new Date();
 				this.getView().getModel("local").setProperty("/date", {
-					minDate: new Date(date.getFullYear(), date.getMonth(), 1),
-					maxDate: new Date(date.getFullYear(), date.getMonth() + 1, 0)
+					minDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+					maxDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)
 				});
-				this.getView().byId('idMonth').setSelectedKey(date.getMonth() < 9 ? '0' + (1 + date.getMonth()) : (1 + date.getMonth()));
+				this.getView().byId('idMonth').setSelectedKey(currentDate.getMonth() + 1);
 			} else {
 				this.getView().getModel().read("/" + path, {
 					urlParameters: {
 						'$expand': 'To_Items'
 					},
 					success: function(data) {
+						yearList = [{
+							year: data.Cyear
+						}];
+						monthList = [months[parseInt(data.Cmonth) - 1]];
+						that.oLocalModel.setProperty("/calendar/years", yearList);
+						that.oLocalModel.setProperty("/calendar/months", monthList);
 						var header = {
 							Claimid: data.Claimid,
 							Claimno: data.Claimno,
@@ -75,14 +93,19 @@ sap.ui.define([
 							CreatedOn: that.formatter.getSAPFormattedDate(data.CreatedOn)
 						};
 						that.getView().getModel("local").setProperty("/header", header);
-						// data.To_Items.results.forEach(function(item, index) {
-						// 	var date = new Date(item.Createdate);
-						// 	//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
-						// 	data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
-						// });
+						data.To_Items.results.forEach(function(item, index) {
+							data.To_Items.results[index].Createdate = new Date(item.Createdate);
+						});
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId('idMonth').setSelectedKey(data.Cmonth);
 						that.getView().byId('idYear').setSelectedKey(data.CYear);
+						if (data.Docstat === "0") {
+							that.getView().byId("idonSave").setEnabled(false);
+							that.getView().byId("idonSubmit").setEnabled(true);
+						} else {
+							that.getView().byId("idonSave").setEnabled(false);
+							that.getView().byId("idonSubmit").setEnabled(false);
+						}
 					},
 					error: function(err) {
 						MessageToast.show("Loading Failed");
@@ -91,8 +114,12 @@ sap.ui.define([
 			}
 		},
 		onDateChange: function(oEvent) {
+			var currentDate = new Date();
 			var month = this.getView().byId('idMonth').getSelectedKey();
 			month = parseInt(month) - 1;
+			if (currentDate.getMonth() === 0 && month === "12") {
+				this.getView().byId('idYear').setSelectedKey(currentDate.getFullYear() - 1);
+			}
 			var year = this.getView().byId('idYear').getSelectedKey();
 			this.getView().getModel("local").setProperty("/date", {
 				minDate: new Date(year, month, 1),
@@ -104,13 +131,14 @@ sap.ui.define([
 			var month = this.getView().byId('idMonth').getSelectedKey();
 			var year = this.getView().byId('idYear').getSelectedKey();
 			var date = new Date(year, parseInt(month) - 1, 1);
+			var currentDate = new Date();
 			// var record = this.getView().getModel("local").getProperty("/record");
 			var record = {
-				"Createdate": new Date(),
+				"Createdate": date,
 				"ClaimAmount": "0.00",
 				"Wagetype": "2509",
 				"TimeStart": "00:00",
-				"TimeEnd": (date.getHours()) + ":" + date.getMinutes(),
+				"TimeEnd": (currentDate.getHours()) + ":" + currentDate.getMinutes(),
 				"Status": "",
 				"Purpose": "",
 				"Destination": "",
@@ -174,26 +202,31 @@ sap.ui.define([
 					});
 				});
 				payload.To_Items = itemsPayload;
+				this.getView().setBusy(true);
 				this.oDataModel.create("/ClaimSet", payload, {
 					success: function(data) {
 						header = {
-							Pernr: data.Pernr,
-							Claimno: data.Claimno,
 							Claimid: data.Claimid,
-							Docstat: data.Docstat
+							Claimno: data.Claimno,
+							Cmonth: data.Cmonth,
+							Cyear: data.Cyear,
+							Docstat: data.Docstat,
+							Pernr: data.Pernr,
+							Total: data.Total,
+							CreatedOn: that.formatter.getSAPFormattedDate(data.CreatedOn)
 						};
 						that.getView().getModel("local").setProperty("/header", header);
-						// data.To_Items.results.forEach(function(item, index) {
-						// 	var date = new Date(item.Createdate);
-						// 	//data.To_Items.results[index].Createdate = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
-						// 	data.To_Items.results[index].Createdate = that.formatter.getSAPFormattedDate(date);
-						// });
+						data.To_Items.results.forEach(function(item, index) {
+							data.To_Items.results[index].Createdate = new Date(item.Createdate);
+						});
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId("idonSave").setEnabled(false);
 						that.getView().byId("idonSubmit").setEnabled(true);
+						that.getView().setBusy(false);
 						sap.m.MessageToast.show(that.oResource.getText("Claim Saved Successfully"));
 					},
 					error: function(oError) {
+						that.getView().setBusy(false);
 						MessageBox.error(JSON.parse(oError.responseText).error.message.value);
 					}
 				});
@@ -205,14 +238,17 @@ sap.ui.define([
 			var deleted = this.itemCrudMap.get("Delete");
 			var updated = this.itemCrudMap.get("Update");
 			deleted.forEach(function(item) {
+				that.getView().setBusy(true);
 				that.oDataModel.remove("/ClaimItemSet('" + item + "')", {
 					success: function(data) {
 						that.itemCrudMap.set("Delete", new Set());
 						MessageToast.show("Delete Success");
 						that.getView().byId("idonSave").setEnabled(false);
 						that.getView().byId("idonSubmit").setEnabled(true);
+						that.getView().setBusy(false);
 					},
 					error: function(oError) {
+						that.getView().setBusy(false);
 						MessageToast.show("Error In Delete");
 						that.getView().byId("idonSave").setEnabled(true);
 						that.getView().byId("idonSubmit").setEnabled(false);
@@ -220,11 +256,6 @@ sap.ui.define([
 				});
 			});
 			items.forEach(function(item) {
-				//var date = item.Createdate.split(".");
-				//item.Createdate = new Date(date[2] + "." + date[1] + "." + date[0]);
-				var claimDate = item.Createdate;
-				// claimDate.setTime(item.Createdate);
-				// claimDate.setDate(claimDate.getDate() + 1);
 				item.Createdate = item.Createdate;
 				if (updated.has(item.ItemId)) {
 					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
@@ -235,7 +266,7 @@ sap.ui.define([
 							that.getView().byId("idonSubmit").setEnabled(true);
 						},
 						error: function(oError) {
-							MessageToast.show("Error In Update");
+							MessageBox.error(JSON.parse(oError.responseText).error.message.value);
 							that.getView().byId("idonSave").setEnabled(true);
 							that.getView().byId("idonSubmit").setEnabled(false);
 						}
@@ -249,7 +280,7 @@ sap.ui.define([
 							that.getView().byId("idonSubmit").setEnabled(true);
 						},
 						error: function(oError) {
-							MessageToast.show("Error New Items");
+							MessageBox.error(JSON.parse(oError.responseText).error.message.value);
 							that.getView().byId("idonSave").setEnabled(true);
 							that.getView().byId("idonSubmit").setEnabled(false);
 						}
@@ -265,6 +296,7 @@ sap.ui.define([
 					var payload = {
 						Docstat: "1"
 					};
+					that.getView().setBusy(true);
 					that.oDataModel.update("/ClaimSet('" + header.Claimid + "')", payload, {
 						success: function(data) {
 							that.getView().getModel("local").setProperty("/header/Docstat", "1");
@@ -275,6 +307,7 @@ sap.ui.define([
 							that.getView().getModel("local").setProperty("/tableData", items);
 							that.getView().byId("idonSave").setEnabled(false);
 							that.getView().byId("idonSubmit").setEnabled(false);
+							that.getView().setBusy(false);
 							sap.m.MessageToast.show(that.oResource.getText("Success"));
 						},
 						error: function() {
