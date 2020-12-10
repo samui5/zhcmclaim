@@ -1,0 +1,56 @@
+@EndUserText.label : 'ZHCM_CLAIM'
+@AbapCatalog.enhancementCategory : #NOT_CLASSIFIED
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #ALLOWED
+define table zhcm_claim {
+  key mandt   : mandt not null;
+  key claimid : start_dte_step_id not null;
+  claimno     : abap.char(12);
+  pernr       : p_pernr;
+  cmonth      : /pra/cdex_ck_dt_month;
+  cyear       : fopc_rep_case_tf_year;
+  docstat     : abap.char(1);
+  total       : abap.dec(9,2);
+  created_by  : uname;
+  created_on  : datum;
+
+}
+
+
+@EndUserText.label : 'ZHCM_CLAIM'
+@AbapCatalog.enhancementCategory : #NOT_CLASSIFIED
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #ALLOWED
+define table zhcm_claim_item {
+  key mandt     : mandt not null;
+  key item_id   : start_dte_step_id not null;
+  claimid       : start_dte_step_id;
+  createdate    : dats;
+  wagetype      : lgart;
+  time_start    : time;
+  time_end      : time;
+  status        : abap.char(1);
+  purpose       : abap.char(100);
+  destination   : abap.char(30);
+  claim_amount  : abap.dec(9,2);
+  comments      : abap.char(255);
+  hasattachment : flag;
+
+}
+
+
+@EndUserText.label : 'ZHCM_CLAIM'
+@AbapCatalog.enhancementCategory : #NOT_CLASSIFIED
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #ALLOWED
+define table zhcm_claim_attch {
+  key mandt     : mandt not null;
+  key attach_id : start_dte_step_id not null;
+  item_id       : start_dte_step_id;
+  type          : doctype;
+  attachment    : ehfnd_file_content;
+
+}

@@ -1,0 +1,814 @@
+class ZCL_ZHCM_CLAIM_DPC_EXT definition
+  public
+  inheriting from ZCL_ZHCM_CLAIM_DPC
+  create public .
+
+public section.
+
+  constants C_W_COVERING type LGART value '2509' ##NO_TEXT.
+  constants C_W_HARDSHIP type LGART value '2513' ##NO_TEXT.
+
+  methods /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CREATE_DEEP_ENTITY
+    redefinition .
+  methods /IWBEP/IF_MGW_APPL_SRV_RUNTIME~EXECUTE_ACTION
+    redefinition .
+protected section.
+
+  methods ATTACHMENTSET_GET_ENTITY
+    redefinition .
+  methods ATTACHMENTSET_GET_ENTITYSET
+    redefinition .
+  methods CLAIMITEMSET_DELETE_ENTITY
+    redefinition .
+  methods CLAIMITEMSET_GET_ENTITY
+    redefinition .
+  methods CLAIMITEMSET_GET_ENTITYSET
+    redefinition .
+  methods CLAIMITEMSET_UPDATE_ENTITY
+    redefinition .
+  methods CLAIMSET_DELETE_ENTITY
+    redefinition .
+  methods CLAIMSET_GET_ENTITY
+    redefinition .
+  methods CLAIMSET_GET_ENTITYSET
+    redefinition .
+  methods CLAIMSET_UPDATE_ENTITY
+    redefinition .
+  methods VALUEHELPSET_GET_ENTITYSET
+    redefinition .
+  methods CLAIMITEMSET_CREATE_ENTITY
+    redefinition .
+private section.
+
+  methods GET_CURRENT_USER
+    exporting
+      value(E_PERNR) type D3PERNR
+      !E_USERNAME type EMNAM .
+  methods CHECK_LIMITS
+    importing
+      !I_HEADER type ZHCM_CLAIM optional
+      !IT_ITEMS type ZTT_HCM_ITEMS
+      !I_UPDATE_CHECKS type FLAG optional
+    raising
+      /IWBEP/CX_MGW_BUSI_EXCEPTION .
+ENDCLASS.
+
+
+
+CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->ATTACHMENTSET_GET_ENTITYSET
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_FILTER_SELECT_OPTIONS       TYPE        /IWBEP/T_MGW_SELECT_OPTION
+* | [--->] IS_PAGING                      TYPE        /IWBEP/S_MGW_PAGING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [--->] IT_ORDER                       TYPE        /IWBEP/T_MGW_SORTING_ORDER
+* | [--->] IV_FILTER_STRING               TYPE        STRING
+* | [--->] IV_SEARCH_STRING               TYPE        STRING
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITYSET(optional)
+* | [<---] ET_ENTITYSET                   TYPE        ZCL_ZHCM_CLAIM_MPC=>TT_ATTACHMENT
+* | [<---] ES_RESPONSE_CONTEXT            TYPE        /IWBEP/IF_MGW_APPL_SRV_RUNTIME=>TY_S_MGW_RESPONSE_CONTEXT
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method attachmentset_get_entityset.
+
+    read table it_key_tab into data(ls_key) index 1.
+
+    select * from zhcm_claim_attch into corresponding fields of table @et_entityset where attach_id = @ls_key-value.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMSET_GET_ENTITYSET
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_FILTER_SELECT_OPTIONS       TYPE        /IWBEP/T_MGW_SELECT_OPTION
+* | [--->] IS_PAGING                      TYPE        /IWBEP/S_MGW_PAGING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [--->] IT_ORDER                       TYPE        /IWBEP/T_MGW_SORTING_ORDER
+* | [--->] IV_FILTER_STRING               TYPE        STRING
+* | [--->] IV_SEARCH_STRING               TYPE        STRING
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITYSET(optional)
+* | [<---] ET_ENTITYSET                   TYPE        ZCL_ZHCM_CLAIM_MPC=>TT_CLAIM
+* | [<---] ES_RESPONSE_CONTEXT            TYPE        /IWBEP/IF_MGW_APPL_SRV_RUNTIME=>TY_S_MGW_RESPONSE_CONTEXT
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method claimset_get_entityset.
+
+    select * from zhcm_claim into corresponding fields of table @et_entityset.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->VALUEHELPSET_GET_ENTITYSET
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_FILTER_SELECT_OPTIONS       TYPE        /IWBEP/T_MGW_SELECT_OPTION
+* | [--->] IS_PAGING                      TYPE        /IWBEP/S_MGW_PAGING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [--->] IT_ORDER                       TYPE        /IWBEP/T_MGW_SORTING_ORDER
+* | [--->] IV_FILTER_STRING               TYPE        STRING
+* | [--->] IV_SEARCH_STRING               TYPE        STRING
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITYSET(optional)
+* | [<---] ET_ENTITYSET                   TYPE        ZCL_ZHCM_CLAIM_MPC=>TT_VALUEHELP
+* | [<---] ES_RESPONSE_CONTEXT            TYPE        /IWBEP/IF_MGW_APPL_SRV_RUNTIME=>TY_S_MGW_RESPONSE_CONTEXT
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method valuehelpset_get_entityset.
+
+    me->get_current_user(
+      importing
+        e_pernr    = data(lv_id)                 " DEUEV: Personnel Number
+        e_username = data(lv_name)                 " Formatted Name of Employee or Applicant
+    ).
+    append value #( text = |{ lv_id } ({ lv_name })| ) to et_entityset.
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Public Method ZCL_ZHCM_CLAIM_DPC_EXT->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CREATE_DEEP_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING(optional)
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING(optional)
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING(optional)
+* | [--->] IO_DATA_PROVIDER               TYPE REF TO /IWBEP/IF_MGW_ENTRY_PROVIDER
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH(optional)
+* | [--->] IO_EXPAND                      TYPE REF TO /IWBEP/IF_MGW_ODATA_EXPAND
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY_C(optional)
+* | [<---] ER_DEEP_ENTITY                 TYPE REF TO DATA
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method /iwbep/if_mgw_appl_srv_runtime~create_deep_entity.
+
+    data: ls_deep       type zcl_zhcm_claim_mpc_ext=>ty_deep_entity,
+          ls_header     type zhcm_claim,
+          ls_item_tab   type zhcm_claim_item,
+          ls_items      type  zcl_zhcm_claim_mpc_ext=>ty_item_entity,
+          ls_attach     type zhcm_claim_attch,
+          lv_counter    type c length 2,
+          lt_otab       type table of zhcm_claim_item,
+          ls_otab       type zhcm_claim_item,
+          lv_no         type char6,
+          ls_attach_tab type zhcm_claim_attch.
+
+*    LOOP AT ls_deep-to_items INTO data(ls_itemss).
+*          MOVE-CORRESPONDING ls_itemss to ls_otab.
+*          append ls_otab to lt_otab.
+*    ENDLOOP.
+
+    io_data_provider->read_entry_data(
+      importing
+        es_data = ls_deep
+    ).
+
+    me->get_current_user(
+      importing
+        e_pernr    = ls_deep-pernr                 " DEUEV: Personnel Number
+*        e_username =                  " Formatted Name of Employee or Applicant
+    ).
+
+    lt_otab = corresponding #( ls_deep-to_items ).
+
+    LOOP AT ls_deep-to_items INTO data(ls_item).
+      IF ls_item-wagetype = zcl_zhcm_claim_dpc_ext=>c_w_hardship.
+        DESCRIBE TABLE ls_item-to_attachments.
+        IF sy-tfill = 0.
+          raise exception type /iwbep/cx_mgw_busi_exception
+                      exporting
+                        textid = value #( msgid = 'ZHCM_CLAIM'
+                                          msgno = 006 ).
+        ENDIF.
+      ENDIF.
+
+      LOOP AT lt_otab into ls_otab FROM sy-tabix + 1.
+         IF ls_item-createdate = ls_otab-createdate and ls_item-wagetype = ls_otab-wagetype.
+           IF ( ls_otab-time_start > ls_item-time_start and ls_otab-time_start < ls_item-time_end ) or
+              ( ls_otab-time_end > ls_item-time_start and ls_otab-time_end < ls_item-time_end ).
+              raise exception type /iwbep/cx_mgw_busi_exception
+                          exporting
+                            textid = value #( msgid = 'ZHCM_CLAIM'
+                                              msgno = 004
+                                              attr1 = ls_item-createdate
+                                              attr2 = ls_item-wagetype
+                                              attr3 = ls_item-time_start
+                                              attr4 = ls_item-time_end ).
+           ENDIF.
+         ENDIF.
+      ENDLOOP.
+    ENDLOOP.
+
+    me->check_limits(
+      exporting
+        i_header = VALUE zhcm_claim( pernr = ls_deep-pernr cmonth = ls_deep-cmonth cyear = ls_deep-cyear )                 " Wage Type
+        it_items = lt_otab                 " ZTT_HCM_ITEMS
+    ).
+*    catch /iwbep/cx_mgw_busi_exception. " Business Exception
+
+    move-corresponding ls_deep to ls_header.
+
+    call function 'NUMBER_GET_NEXT'
+      exporting
+        nr_range_nr = '1'                " Number range number
+        object      = 'ZSN_CLAIM'        " Name of number range object
+      importing
+        number      = lv_no.                " free number
+
+    ls_header-claimid = cl_uuid_factory=>create_system_uuid( )->create_uuid_c32( ).
+    ls_header-claimno = |{ ls_header-cyear }{ ls_header-cmonth }{ lv_no }|.
+    ls_header-docstat = '0'.
+    ls_header-pernr = ls_deep-pernr.
+    ls_deep-claimid = ls_header-claimid.
+    ls_deep-claimno = ls_header-claimno.
+    ls_deep-docstat = ls_header-docstat.
+    ls_deep-pernr = ls_header-pernr.
+    ls_header-created_by = sy-uname.
+    ls_header-created_on = sy-datum.
+
+
+    loop at ls_deep-to_items ASSIGNING FIELD-SYMBOL(<fs>).
+      ls_item_tab-claimid = ls_header-claimid.
+      ls_item_tab-item_id = cl_uuid_factory=>create_system_uuid( )->create_uuid_c32( ).
+      <fs>-item_id =  ls_item_tab-item_id.
+      <fs>-claimid =  ls_item_tab-claimid.
+      ls_item_tab-status = '0'.
+      <fs>-status =  ls_item_tab-status.
+      ls_item_tab-status = '0'.
+      ls_header-total = ls_header-total + ls_item_tab-claim_amount.
+      move-corresponding <fs> to ls_item_tab.
+      insert into zhcm_claim_item values ls_item_tab.
+      loop at <fs>-to_attachments ASSIGNING FIELD-SYMBOL(<attach>).
+        move-corresponding ls_item_tab to ls_attach_tab.
+        ls_attach_tab-item_id = <fs>-item_id.
+        ls_attach_tab-attach_id = cl_uuid_factory=>create_system_uuid( )->create_uuid_c32( ).
+        <attach>-attach_id = ls_attach_tab-attach_id.
+        ls_attach_tab-attachment = <attach>-attachment.
+        ls_attach_tab-type = <attach>-type.
+        insert into zhcm_claim_attch values ls_attach_tab.
+      endloop.
+    endloop.
+
+    insert into zhcm_claim values ls_header.
+
+
+    me->copy_data_to_ref(
+      exporting
+        is_data = ls_deep
+      changing
+        cr_data = er_deep_entity
+    ).
+
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Public Method ZCL_ZHCM_CLAIM_DPC_EXT->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~EXECUTE_ACTION
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ACTION_NAME                 TYPE        STRING(optional)
+* | [--->] IT_PARAMETER                   TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR(optional)
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_FUNC_IMPORT(optional)
+* | [<---] ER_DATA                        TYPE REF TO DATA
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~EXECUTE_ACTION.
+
+    delete from: zhcm_claim,zhcm_claim_item, zhcm_claim_attch.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->ATTACHMENTSET_GET_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_REQUEST_OBJECT              TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY(optional)
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [<---] ER_ENTITY                      TYPE        ZCL_ZHCM_CLAIM_MPC=>TS_ATTACHMENT
+* | [<---] ES_RESPONSE_CONTEXT            TYPE        /IWBEP/IF_MGW_APPL_SRV_RUNTIME=>TY_S_MGW_RESPONSE_ENTITY_CNTXT
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method attachmentset_get_entity.
+
+    read table it_key_tab into data(ls_key) index 1.
+
+    select single * from zhcm_claim_attch into corresponding fields of @er_entity where attach_id = @ls_key-value.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Private Method ZCL_ZHCM_CLAIM_DPC_EXT->CHECK_LIMITS
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] I_HEADER                       TYPE        ZHCM_CLAIM(optional)
+* | [--->] IT_ITEMS                       TYPE        ZTT_HCM_ITEMS
+* | [--->] I_UPDATE_CHECKS                TYPE        FLAG(optional)
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method check_limits.
+
+    types : begin of ty_day_wise,
+              cr_date type sy-datum,
+              wage    type int4,
+            end of ty_day_wise.
+
+    data: lt_tot_hard type table of ty_day_wise,
+          ls_tot_hard type ty_day_wise,
+          lt_tot_over type table of ty_day_wise,
+          ls_tot_over type ty_day_wise,
+          lv_mon_over type int4,
+          lv_mon_hard type int4.
+
+    if i_update_checks = abap_false.
+      "Validate if there is a draft claim for same user, same month and year
+      select single 'X' into @data(lv_exist) from zhcm_claim where pernr = @i_header-pernr and cyear = @i_header-cyear and cmonth = @i_header-cmonth and docstat = '0'.
+      if lv_exist = abap_true.
+        "a draft claim exist for same month and year
+        raise exception type /iwbep/cx_mgw_busi_exception
+          exporting
+            textid = value #( msgid = 'ZHCM_CLAIM'
+                              msgno = 003
+                              attr1 = i_header-pernr
+                              attr2 = i_header-cyear
+                              attr3 = i_header-cmonth ).
+      endif.
+
+
+      loop at it_items into data(ls_item_chk).
+        select single 'X' into @data(lv_exist2) from zhcm_claim_item
+                                            where createdate = @ls_item_chk-createdate and
+                                            wagetype =  @ls_item_chk-wagetype and (
+                                            time_start between @ls_item_chk-time_start and @ls_item_chk-time_end or
+                                            time_end between @ls_item_chk-time_start and @ls_item_chk-time_end ).
+        if lv_exist2 = abap_true.
+          raise exception type /iwbep/cx_mgw_busi_exception
+            exporting
+              textid = value #( msgid = 'ZHCM_CLAIM'
+                                msgno = 004
+                                attr1 = ls_item_chk-createdate
+                                attr2 = ls_item_chk-wagetype
+                                attr3 = ls_item_chk-time_start
+                                attr4 = ls_item_chk-time_end ).
+        endif.
+      endloop.
+    endif.
+
+    select sum( claim_amount )  from zhcm_claim_item inner join zhcm_claim
+      on zhcm_claim_item~claimid = zhcm_claim~claimid
+      into @data(lv_tot_over) where zhcm_claim~cmonth = @i_header-cmonth and zhcm_claim~cyear = @i_header-cyear and zhcm_claim_item~wagetype = @zcl_zhcm_claim_dpc_ext=>c_w_covering.
+
+    loop at it_items into data(ls_items).
+      IF ls_items-claim_amount = 0.
+        raise exception type /iwbep/cx_mgw_busi_exception
+              exporting
+                textid = value #( msgid = 'ZHCM_CLAIM'
+                                  msgno = 005 ).
+      ENDIF.
+      case ls_items-wagetype.
+        when zcl_zhcm_claim_dpc_ext=>c_w_covering.
+          ls_tot_over-cr_date = ls_items-createdate.
+          ls_tot_over-wage = ls_items-claim_amount.
+          lv_mon_over = lv_mon_over + ls_items-claim_amount.
+          if lv_mon_over + lv_tot_over > 100.
+            "Exception Forfeit cannot exeed 100 RM per month
+            raise exception type /iwbep/cx_mgw_busi_exception
+              exporting
+                textid = value #( msgid = 'ZHCM_CLAIM'
+                                  msgno = 000 ).
+          endif.
+          collect ls_tot_over into lt_tot_over.
+        when zcl_zhcm_claim_dpc_ext=>c_w_hardship.
+          ls_tot_hard-cr_date = ls_items-createdate.
+          ls_tot_hard-wage = ls_items-claim_amount.
+          lv_mon_hard = lv_mon_hard + ls_items-claim_amount.
+          if lv_mon_hard > 9999.
+            "No Limit
+          endif.
+          collect ls_tot_hard into lt_tot_hard.
+        when others.
+      endcase.
+    endloop.
+
+    delete lt_tot_over where wage <= 5.
+    describe table lt_tot_over.
+    if sy-tfill > 0.
+      "TODO: perday amount cannot excced 5 RM
+      raise exception type /iwbep/cx_mgw_busi_exception
+        exporting
+          textid = value #( msgid = 'ZHCM_CLAIM'
+                            msgno = 001 ).
+    endif.
+
+    delete lt_tot_hard where wage <= 40.
+    describe table lt_tot_hard.
+    if sy-tfill > 0.
+      "TODO: perday amount cannot excced 40 RM
+      raise exception type /iwbep/cx_mgw_busi_exception
+        exporting
+          textid = value #( msgid = 'ZHCM_CLAIM'
+                            msgno = 002 ).
+    endif.
+
+
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMITEMSET_CREATE_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY_C(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [--->] IO_DATA_PROVIDER               TYPE REF TO /IWBEP/IF_MGW_ENTRY_PROVIDER(optional)
+* | [<---] ER_ENTITY                      TYPE        ZCL_ZHCM_CLAIM_MPC=>TS_CLAIMITEM
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method CLAIMITEMSET_CREATE_ENTITY.
+
+
+    data: ls_deep       type zcl_zhcm_claim_mpc_ext=>ts_claimitem,
+          ls_header     type zhcm_claim,
+          ls_item_tab   type zhcm_claim_item,
+          ls_items      type  zcl_zhcm_claim_mpc_ext=>ty_item_entity,
+          ls_attach     type zhcm_claim_attch,
+          lv_counter    type c length 2,
+          lt_otab       type table of zhcm_claim_item,
+          ls_otab       type zhcm_claim_item,
+          lv_no         type char6,
+          lv_pernr      TYPE D3PERNR,
+          ls_attach_tab type zhcm_claim_attch.
+
+*    LOOP AT ls_deep-to_items INTO data(ls_itemss).
+*          MOVE-CORRESPONDING ls_itemss to ls_otab.
+*          append ls_otab to lt_otab.
+*    ENDLOOP.
+
+    io_data_provider->read_entry_data(
+      importing
+        es_data = ls_deep
+    ).
+
+    me->get_current_user(
+      importing
+        e_pernr    = lv_pernr                 " DEUEV: Personnel Number
+*        e_username =                  " Formatted Name of Employee or Applicant
+    ).
+
+    append ls_deep to lt_otab.
+
+    select SINGLE * FROM zhcm_claim into @DATA(ls_headerx) WHERE claimid = @ls_deep-claimid.
+    IF sy-subrc <> 0.
+      ASSERT 1 = 2.
+    else.
+      IF lv_pernr <> ls_headerx-pernr.
+        ASSERT 1 = 2.
+      ENDIF.
+    ENDIF.
+
+    me->check_limits(
+      exporting
+        i_header = VALUE zhcm_claim( pernr = ls_header-pernr cmonth = ls_header-cmonth cyear = ls_header-cyear )                 " Wage Type
+        it_items = lt_otab                 " ZTT_HCM_ITEMS
+    ).
+*    catch /iwbep/cx_mgw_busi_exception. " Business Exception
+
+
+      ls_deep-item_id = cl_uuid_factory=>create_system_uuid( )->create_uuid_c32( ).
+      ls_deep-status = '0'.
+      move-corresponding ls_deep to ls_item_tab.
+      insert into zhcm_claim_item values ls_item_tab.
+
+
+    MOVE-CORRESPONDING ls_deep TO ER_ENTITY.
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMITEMSET_DELETE_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY_D(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method CLAIMITEMSET_DELETE_ENTITY.
+
+    READ TABLE it_key_tab INTO data(ls_key) INDEX 1.
+
+    delete from zhcm_claim_item where item_id = ls_key-value.
+    delete from zhcm_claim_attch where item_id = ls_key-value.
+
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMITEMSET_GET_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_REQUEST_OBJECT              TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY(optional)
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [<---] ER_ENTITY                      TYPE        ZCL_ZHCM_CLAIM_MPC=>TS_CLAIMITEM
+* | [<---] ES_RESPONSE_CONTEXT            TYPE        /IWBEP/IF_MGW_APPL_SRV_RUNTIME=>TY_S_MGW_RESPONSE_ENTITY_CNTXT
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method claimitemset_get_entity.
+
+    read table it_key_tab into data(ls_key) index 1.
+
+    select single * from zhcm_claim_item into corresponding fields of @er_entity where item_id = @ls_key-value
+      .
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMITEMSET_GET_ENTITYSET
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_FILTER_SELECT_OPTIONS       TYPE        /IWBEP/T_MGW_SELECT_OPTION
+* | [--->] IS_PAGING                      TYPE        /IWBEP/S_MGW_PAGING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [--->] IT_ORDER                       TYPE        /IWBEP/T_MGW_SORTING_ORDER
+* | [--->] IV_FILTER_STRING               TYPE        STRING
+* | [--->] IV_SEARCH_STRING               TYPE        STRING
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITYSET(optional)
+* | [<---] ET_ENTITYSET                   TYPE        ZCL_ZHCM_CLAIM_MPC=>TT_CLAIMITEM
+* | [<---] ES_RESPONSE_CONTEXT            TYPE        /IWBEP/IF_MGW_APPL_SRV_RUNTIME=>TY_S_MGW_RESPONSE_CONTEXT
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method claimitemset_get_entityset.
+
+    read table it_key_tab into data(ls_key) index 1.
+
+    select * from zhcm_claim_item into corresponding fields of table @et_entityset where claimid = @ls_key-value
+      ORDER BY item_id
+      .
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMITEMSET_UPDATE_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY_U(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [--->] IO_DATA_PROVIDER               TYPE REF TO /IWBEP/IF_MGW_ENTRY_PROVIDER(optional)
+* | [<---] ER_ENTITY                      TYPE        ZCL_ZHCM_CLAIM_MPC=>TS_CLAIMITEM
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method claimitemset_update_entity.
+
+    data: ls_item_update type zcl_zhcm_claim_mpc_ext=>ty_item_entity,
+          lv_pernr       type d3pernr,
+          lt_otab        type ztt_hcm_items,
+          ls_item        like line of lt_otab.
+
+    read table it_key_tab into data(ls_key) index 1.
+
+    io_data_provider->read_entry_data(
+      importing
+        es_data = ls_item_update
+    ).
+
+    me->get_current_user(
+      importing
+        e_pernr    = lv_pernr                 " DEUEV: Personnel Number
+*        e_username =                  " Formatted Name of Employee or Applicant
+    ).
+
+    move-corresponding ls_item_update to ls_item.
+    append ls_item to lt_otab.
+
+    select single * from zhcm_claim into @data(ls_headerx) where claimid = @ls_item_update-claimid.
+    if sy-subrc <> 0.
+      assert 1 = 2.
+    else.
+      if lv_pernr <> ls_headerx-pernr.
+        assert 1 = 2.
+      endif.
+    endif.
+
+    me->check_limits(
+      exporting
+        i_header = value zhcm_claim( pernr = ls_headerx-pernr cmonth = ls_headerx-cmonth cyear = ls_headerx-cyear )                 " Wage Type
+        it_items = lt_otab                 " ZTT_HCM_ITEMS
+        I_UPDATE_CHECKS = abap_true
+    ).
+
+
+    if ls_item_update-status = 2 or ls_item_update-status = 3.
+      update zhcm_claim_item set status = @ls_item_update-status
+      where item_id = @ls_key-value.
+    else.
+      update zhcm_claim_item set createdate = @ls_item_update-createdate ,
+        wagetype = @ls_item_update-wagetype,
+        time_start = @ls_item_update-time_start,
+        time_end = @ls_item_update-time_end,
+        purpose = @ls_item_update-purpose,
+        destination = @ls_item_update-destination,
+        claim_amount = @ls_item_update-claim_amount,
+        comments = @ls_item_update-comments
+      where item_id = @ls_key-value.
+
+    endif.
+
+
+
+    select status, count(*) as count into table @data(lt_item_stat) from zhcm_claim_item
+      where claimid = ( select claimid from zhcm_claim_item  where item_id = @ls_key-value )
+      group by status
+      .
+
+    delete lt_item_stat where status = '2'.
+    describe table lt_item_stat.
+    if sy-tfill = 0.
+      "doc approved
+      return.
+    endif.
+
+    loop at lt_item_stat into data(ls_item_stat).
+      case ls_item_stat-status.
+        when '3'.
+          "doc rejected
+          return.
+        when others.
+      endcase.
+    endloop.
+
+    "doc sent
+    move-corresponding ls_item_update to er_entity.
+
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMSET_DELETE_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY_D(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method CLAIMSET_DELETE_ENTITY.
+
+
+    READ TABLE it_key_tab INTO data(ls_key) INDEX 1.
+
+    delete from zhcm_claim where claimid = ls_key-value.
+    select item_id from zhcm_claim_item INTO TABLE @data(lt_items) WHERE claimid = @ls_key-value.
+
+    LOOP AT lt_items INTO data(ls_item).
+        delete from zhcm_claim_attch where item_id = ls_item.
+        delete from zhcm_claim_item where item_id = ls_item.
+    ENDLOOP.
+
+
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMSET_GET_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_REQUEST_OBJECT              TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY(optional)
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [<---] ER_ENTITY                      TYPE        ZCL_ZHCM_CLAIM_MPC=>TS_CLAIM
+* | [<---] ES_RESPONSE_CONTEXT            TYPE        /IWBEP/IF_MGW_APPL_SRV_RUNTIME=>TY_S_MGW_RESPONSE_ENTITY_CNTXT
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method claimset_get_entity.
+
+    read table it_key_tab into data(ls_key) index 1.
+
+    select single * from zhcm_claim into corresponding fields of @er_entity where claimid = @ls_key-value
+      .
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->CLAIMSET_UPDATE_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY_U(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [--->] IO_DATA_PROVIDER               TYPE REF TO /IWBEP/IF_MGW_ENTRY_PROVIDER(optional)
+* | [<---] ER_ENTITY                      TYPE        ZCL_ZHCM_CLAIM_MPC=>TS_CLAIM
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method claimset_update_entity.
+
+    data: ls_update type zcl_zhcm_claim_mpc=>ts_claim.
+
+    read table it_key_tab into data(ls_key) index 1.
+
+    io_data_provider->read_entry_data(
+      importing
+        es_data = ls_update
+    ).
+*    catch /iwbep/cx_mgw_tech_exception. " mgw technical exception
+
+*    select SINGLE * FROM ZHCM_CLAIM_ITEM into CORRESPONDING FIELDS OF @ER_ENTITY WHERE claimno = @ls_key-value and pernr = @ls_key2-value
+*      and seqnr = @ls_key3-value
+*      .
+
+    update zhcm_claim set docstat = @ls_update-docstat
+      where claimid = @ls_key-value
+      .
+
+    "doc sent
+    move-corresponding ls_update to er_entity.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Private Method ZCL_ZHCM_CLAIM_DPC_EXT->GET_CURRENT_USER
+* +-------------------------------------------------------------------------------------------------+
+* | [<---] E_PERNR                        TYPE        D3PERNR
+* | [<---] E_USERNAME                     TYPE        EMNAM
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method get_current_user.
+
+    data: lt_tab type pernr_us_tab.
+
+    call function 'HR_GET_EMPLOYEES_FROM_USER'
+      exporting
+        user   = sy-uname
+*       begda  = SY-DATUM
+*       endda  = SY-DATUM
+*       iv_with_authority = 'X'
+      tables
+        ee_tab = lt_tab.
+
+    read table lt_tab into data(ls_tab) index 1.
+    e_pernr = ls_tab-pernr.
+
+    select single ename from pa0001 into @e_username
+       where pernr = @e_pernr.
+
+
+  endmethod.
+ENDCLASS.

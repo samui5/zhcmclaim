@@ -194,6 +194,10 @@ sap.ui.define([
 					var claimDate = new Date();
 					claimDate.setTime(item.Createdate);
 					claimDate.setDate(claimDate.getDate() + 1);
+					if(item.To_Attachments.length > 0){
+						delete item.To_Attachments[0].Stream;
+						item.To_Attachments[0].Content = btoa(item.To_Attachments[0].Content);
+					}
 					itemsPayload.push({
 						//"Createdate": new Date(date[2] + "." + date[1] + "." + date[0]), //blank
 						"Createdate": claimDate,
@@ -204,7 +208,7 @@ sap.ui.define([
 						"Purpose": item.Purpose, //screen - table
 						"Destination": item.Destination, //screen - table
 						"ClaimAmount": item.ClaimAmount, //screen - table
-						"To_Attachments": []
+						"To_Attachments": item.To_Attachments
 					});
 				});
 				payload.To_Items = itemsPayload;

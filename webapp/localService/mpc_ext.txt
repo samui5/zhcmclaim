@@ -1,0 +1,9 @@
+  TYPES: BEGIN OF ty_item_entity.
+          INCLUDE TYPE zhcm_claim_item.
+  TYPES: to_attachments TYPE STANDARD TABLE OF zhcm_claim_attch WITH default key,
+         end of ty_item_entity.
+
+  TYPES: BEGIN OF ty_deep_entity.
+          INCLUDE TYPE zhcm_claim.
+  TYPES: to_items TYPE STANDARD TABLE OF ty_item_entity WITH default key,
+         end of ty_deep_entity.

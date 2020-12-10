@@ -1,0 +1,7 @@
+000	Forklift Allowance cannot exceed 100 RM for current month
+001	Forklift Allowance claim limit is 5 RM per day
+002	Hardship Allowance claim limit is 40 RM per day
+003	A Draft Claim already exist for &1 for &2-&3
+004	A claim item of type &2 already exist for date &1 between &3 to &4
+005	A claim Item with Zero not allowed
+006	Attachment is mandatory for Hardship Type
