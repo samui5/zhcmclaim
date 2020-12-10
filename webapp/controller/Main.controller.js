@@ -222,10 +222,10 @@ sap.ui.define([
 			items.forEach(function(item) {
 				//var date = item.Createdate.split(".");
 				//item.Createdate = new Date(date[2] + "." + date[1] + "." + date[0]);
-				var claimDate = new Date();
-				claimDate.setTime(item.Createdate);
-				claimDate.setDate(claimDate.getDate() + 1);
-				item.Createdate = claimDate;
+				var claimDate = item.Createdate;
+				// claimDate.setTime(item.Createdate);
+				// claimDate.setDate(claimDate.getDate() + 1);
+				item.Createdate = item.Createdate;
 				if (updated.has(item.ItemId)) {
 					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
 						success: function(data) {
