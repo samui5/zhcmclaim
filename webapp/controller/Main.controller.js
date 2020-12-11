@@ -79,7 +79,7 @@ sap.ui.define([
 				});
 				this.getView().getModel().read("/" + path, {
 					urlParameters: {
-						'$expand': 'To_Items'
+						'$expand': 'To_Items, To_Attachments'
 					},
 					success: function(data) {
 						yearList = [{
