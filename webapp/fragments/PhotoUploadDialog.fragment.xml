@@ -6,7 +6,7 @@
 			contentHeight="100%"
 			contentWidth="100%">
 			<content>
-				<unified:FileUploader id="idCoUploader" buttonText="Browse..." style="Emphasized" buttonOnly="false" 
+				<unified:FileUploader buttonText="Browse..." style="Emphasized" buttonOnly="false" 
 							  enabled="true" width="80%"
 							  iconFirst="true" uploadOnChange="true" multiple="false" maximumFileSize="5"
 							  mimeType="application/pdf,application/msword"

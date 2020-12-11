@@ -101,8 +101,9 @@ sap.ui.define([
 						that.getView().getModel("local").setProperty("/header", header);
 						data.To_Items.results.forEach(function(item, index) {
 							data.To_Items.results[index].Createdate = new Date(item.Createdate);
-							if()---yogi
-							data.To_Items.results[index].To_Attachments.results[0].Content = atob(data.To_Items.results[index].To_Attachments.results[0].Content);
+							// if()---yogi
+							data.To_Items.results[index].To_Attachments = data.To_Items.results[index].To_Attachments.results;
+							data.To_Items.results[index].To_Attachments[0].Content = atob(data.To_Items.results[index].To_Attachments[0].Content);
 						});
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId('idMonth').setSelectedKey(data.Cmonth);
