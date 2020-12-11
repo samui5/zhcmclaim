@@ -54,6 +54,7 @@ private section.
   methods CREATE_ITEMS_ALONE
     importing
       !I_CLAIM_ID type START_DTE_STEP_ID
+      !I_TOTAL type ZDTE_DEC
       !IT_ITEMS type ZCL_ZHCM_CLAIM_MPC_EXT=>TT_ITEMS_ENTITY .
 ENDCLASS.
 
@@ -189,6 +190,7 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
       me->create_items_alone(
         exporting
           i_claim_id = ls_deep-claimid                " Data element for step id
+          i_total    = ls_deep-total
           it_items   = ls_deep-to_items
       ).
 
@@ -275,7 +277,7 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
       ls_item_tab-status = '0'.
       <fs>-status =  ls_item_tab-status.
       ls_item_tab-status = '0'.
-      ls_header-total = ls_header-total + ls_item_tab-claim_amount.
+*      ls_header-total = ls_header-total + ls_item_tab-claim_amount.
       move-corresponding <fs> to ls_item_tab.
       insert into zhcm_claim_item values ls_item_tab.
       loop at <fs>-to_attachments ASSIGNING FIELD-SYMBOL(<attach>).
@@ -819,6 +821,7 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 * | Instance Private Method ZCL_ZHCM_CLAIM_DPC_EXT->CREATE_ITEMS_ALONE
 * +-------------------------------------------------------------------------------------------------+
 * | [--->] I_CLAIM_ID                     TYPE        START_DTE_STEP_ID
+* | [--->] I_TOTAL                        TYPE        ZDTE_DEC
 * | [--->] IT_ITEMS                       TYPE        ZCL_ZHCM_CLAIM_MPC_EXT=>TT_ITEMS_ENTITY
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   method create_items_alone.
@@ -907,6 +910,8 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
         insert into zhcm_claim_attch values ls_attach_tab.
       endloop.
     endloop.
+
+    UPDATE zhcm_claim set total = i_total WHERE claimid = I_CLAIM_ID.
 
 
 
