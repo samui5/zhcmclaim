@@ -112,7 +112,11 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   method claimset_get_entityset.
 
-    select * from zhcm_claim into corresponding fields of table @et_entityset.
+    READ TABLE it_filter_select_options INTO data(ls_f) INDEX 1.
+    READ TABLE ls_f-select_options INTO data(ls_f2) INDEX 1.
+
+    data(lv_fil) =  |%{ ls_f2-low }%|.
+    select * from zhcm_claim into corresponding fields of table @et_entityset WHERE claimno like @lv_fil.
 
   endmethod.
 
