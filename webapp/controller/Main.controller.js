@@ -267,10 +267,10 @@ sap.ui.define([
 			items.forEach(function(item) {
 				item.Createdate = item.Createdate;
 				if(deleted.has(item.ItemId)){
-					total-=item.ClaimAmount;
+					total-=parseFloat(item.ClaimAmount);
 				}
 				else if (updated.has(item.ItemId)) {
-					total+=item.ClaimAmount;
+					total+=parseFloat(item.ClaimAmount);
 					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
 						success: function(data) {
 							that.itemCrudMap.set("Update", new Set());
@@ -285,7 +285,7 @@ sap.ui.define([
 						}
 					});
 				} else if (!item.ItemId) {
-					total+=item.ClaimAmount;
+					total+=parseFloat(item.ClaimAmount);
 					item.Claimid = header.Claimid;
 					if (item.Wagetype === "2509") {
 						item.Purpose = "";
