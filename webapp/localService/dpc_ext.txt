@@ -51,6 +51,10 @@ private section.
       !I_UPDATE_CHECKS type FLAG optional
     raising
       /IWBEP/CX_MGW_BUSI_EXCEPTION .
+  methods CREATE_ITEMS_ALONE
+    importing
+      !I_CLAIM_ID type START_DTE_STEP_ID
+      !IT_ITEMS type ZCL_ZHCM_CLAIM_MPC_EXT=>TT_ITEMS_ENTITY .
 ENDCLASS.
 
 
@@ -81,8 +85,7 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 
     read table it_key_tab into data(ls_key) index 1.
 
-    select item_id, ATTACHMENT from zhcm_claim_attch into corresponding fields of table @et_entityset where item_id in
-        ( select item_id from zhcm_claim_item WHERE claimid = @ls_key-value ).
+    select * from zhcm_claim_attch into corresponding fields of table @et_entityset where item_id  = @ls_key-value.
 
   endmethod.
 
@@ -181,6 +184,23 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
         es_data = ls_deep
     ).
 
+    IF ls_deep-claimid <> ''.
+
+      me->create_items_alone(
+        exporting
+          i_claim_id = ls_deep-claimid                " Data element for step id
+          it_items   = ls_deep-to_items
+      ).
+
+      me->copy_data_to_ref(
+        exporting
+          is_data = ls_deep
+        changing
+          cr_data = er_deep_entity
+      ).
+      return.
+    ENDIF.
+
     me->get_current_user(
       importing
         e_pernr    = ls_deep-pernr                 " DEUEV: Personnel Number
@@ -188,6 +208,8 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
     ).
 
     lt_otab = corresponding #( ls_deep-to_items ).
+
+
 
     LOOP AT ls_deep-to_items INTO data(ls_item).
       IF ls_item-wagetype = zcl_zhcm_claim_dpc_ext=>c_w_hardship.
@@ -779,8 +801,114 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
       where claimid = @ls_key-value
       .
 
+    IF ls_update-docstat = '1'.
+      update zhcm_claim_item set status = @ls_update-docstat
+      where claimid = @ls_key-value
+      .
+    ENDIF.
+
+
+
     "doc sent
     move-corresponding ls_update to er_entity.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Private Method ZCL_ZHCM_CLAIM_DPC_EXT->CREATE_ITEMS_ALONE
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] I_CLAIM_ID                     TYPE        START_DTE_STEP_ID
+* | [--->] IT_ITEMS                       TYPE        ZCL_ZHCM_CLAIM_MPC_EXT=>TT_ITEMS_ENTITY
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method create_items_alone.
+
+
+    data:
+      ls_header     type zhcm_claim,
+      ls_item_tab   type zhcm_claim_item,
+      ls_items      type  zcl_zhcm_claim_mpc_ext=>ty_item_entity,
+      ls_attach     type zhcm_claim_attch,
+      lv_counter    type c length 2,
+      lt_otab       type table of zhcm_claim_item,
+      ls_otab       type zhcm_claim_item,
+      lv_no         type char6,
+      lv_pernr      type d3pernr,
+      ls_attach_tab type zhcm_claim_attch.
+
+
+    me->get_current_user(
+      importing
+        e_pernr    = lv_pernr                 " DEUEV: Personnel Number
+*          e_username =                  " Formatted Name of Employee or Applicant
+    ).
+
+    lt_otab = corresponding #( it_items ).
+
+
+    select single * from zhcm_claim into @data(ls_headerx) where claimid = @i_claim_id.
+    if sy-subrc <> 0.
+      assert 1 = 2.
+    else.
+      if lv_pernr <> ls_headerx-pernr.
+        assert 1 = 2.
+      endif.
+    endif.
+
+    loop at it_items into data(ls_item).
+      if ls_item-wagetype = zcl_zhcm_claim_dpc_ext=>c_w_hardship.
+        describe table ls_item-to_attachments.
+        if sy-tfill = 0.
+          raise exception type /iwbep/cx_mgw_busi_exception
+            exporting
+              textid = value #( msgid = 'ZHCM_CLAIM'
+                                msgno = 006 ).
+        endif.
+      endif.
+
+      loop at lt_otab into ls_otab from sy-tabix + 1.
+        if ls_item-createdate = ls_otab-createdate and ls_item-wagetype = ls_otab-wagetype.
+          if ( ls_otab-time_start > ls_item-time_start and ls_otab-time_start < ls_item-time_end ) or
+             ( ls_otab-time_end > ls_item-time_start and ls_otab-time_end < ls_item-time_end ).
+            raise exception type /iwbep/cx_mgw_busi_exception
+              exporting
+                textid = value #( msgid = 'ZHCM_CLAIM'
+                                  msgno = 004
+                                  attr1 = ls_item-createdate
+                                  attr2 = ls_item-wagetype
+                                  attr3 = ls_item-time_start
+                                  attr4 = ls_item-time_end ).
+          endif.
+        endif.
+      endloop.
+    endloop.
+
+    me->check_limits(
+      exporting
+        i_header = value zhcm_claim( pernr = ls_headerx-pernr cmonth = ls_headerx-cmonth cyear = ls_headerx-cyear )                 " Wage Type
+        it_items = lt_otab                 " ZTT_HCM_ITEMS
+        i_update_checks = abap_true
+    ).
+*    catch /iwbep/cx_mgw_busi_exception. " Business Exception
+
+    loop at it_items assigning field-symbol(<fs>).
+      MOVE-CORRESPONDING <fs> to ls_item_tab.
+      ls_item_tab-claimid = i_claim_id.
+      ls_item_tab-item_id = cl_uuid_factory=>create_system_uuid( )->create_uuid_c32( ).
+      ls_item_tab-status = '0'.
+*      ls_header-total = ls_header-total + ls_item_tab-claim_amount.
+      insert into zhcm_claim_item values ls_item_tab.
+      loop at <fs>-to_attachments assigning field-symbol(<attach>).
+        move-corresponding ls_item_tab to ls_attach_tab.
+        ls_attach_tab-item_id = ls_item_tab-item_id.
+        ls_attach_tab-attach_id = cl_uuid_factory=>create_system_uuid( )->create_uuid_c32( ).
+        ls_attach_tab-attachment = <attach>-attachment.
+        ls_attach_tab-type = <attach>-type.
+        insert into zhcm_claim_attch values ls_attach_tab.
+      endloop.
+    endloop.
+
+
 
   endmethod.
 
