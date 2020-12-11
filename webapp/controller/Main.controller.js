@@ -350,7 +350,12 @@ sap.ui.define([
 				var attach = attachs[0];
 				var oControl = that.photoPopup.getAggregation("content")[1];
 				that.img.Content = attach.Content;
-				that.img.Stream = attach.Stream;
+				if(attach.Stream === "" || attach.Stream === undefined){
+					attach.Stream = that.img.Stream = that.formatter.convertPDFToUrl(attach.Content);
+				}else{
+					that.img.Stream = attach.Stream;
+				}
+				
 				oControl.setSource(that.img.Stream);
 			}
 		},
