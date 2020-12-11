@@ -77,12 +77,12 @@ sap.ui.define([
 						sap.m.MessageToast.show("Loading failed " + err);
 					}
 				});
+				this.getView().setBusy(true);
 				this.getView().getModel().read("/" + path, {
 					urlParameters: {
 						'$expand': 'To_Items,To_Items/To_Attachments'
 					},
 					success: function(data) {
-						debugger;
 						yearList = [{
 							year: data.Cyear
 						}];
@@ -101,9 +101,10 @@ sap.ui.define([
 						that.getView().getModel("local").setProperty("/header", header);
 						data.To_Items.results.forEach(function(item, index) {
 							data.To_Items.results[index].Createdate = new Date(item.Createdate);
-							// if()---yogi
-							data.To_Items.results[index].To_Attachments = data.To_Items.results[index].To_Attachments.results;
-							data.To_Items.results[index].To_Attachments[0].Content = atob(data.To_Items.results[index].To_Attachments[0].Content);
+							if (data.To_Items.results[index].To_Attachments.results.length > 0) {
+								data.To_Items.results[index].To_Attachments = data.To_Items.results[index].To_Attachments.results;
+								data.To_Items.results[index].To_Attachments[0].Content = atob(data.To_Items.results[index].To_Attachments[0].Content);
+							}
 						});
 						that.getView().getModel("local").setProperty("/tableData", data.To_Items.results);
 						that.getView().byId('idMonth').setSelectedKey(data.Cmonth);
@@ -115,8 +116,10 @@ sap.ui.define([
 							that.getView().byId("idonSave").setEnabled(false);
 							that.getView().byId("idonSubmit").setEnabled(false);
 						}
+						that.getView().setBusy(false);
 					},
 					error: function(err) {
+						that.getView().setBusy(false);
 						MessageToast.show("Loading Failed");
 					}
 				});
@@ -173,21 +176,23 @@ sap.ui.define([
 		onSave: function() {
 			var header = this.getView().getModel("local").getProperty("/header");
 			var items = this.getView().getModel("local").getProperty("/tableData");
+			var total = 0;
 			for (var i = 0; i < items.length; i++) {
+				total += parseFloat(items[i].ClaimAmount);
 				if (parseFloat(items[i].ClaimAmount) === 0) {
 					MessageBox.alert("Claim amount can't be 0");
 					return;
 				}
 			}
 			if (header.Claimid) {
-				this.onUpsert(header.Claimid);
+				this.onUpsert(header);
 			} else {
 				var that = this;
 				var payload = {
 					"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
 					"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
 					"Docstat": header.Docstat, //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
-					"Total": "0.00", //blank
+					"Total": total, //blank
 					"To_Items": []
 				};
 				var itemsPayload = [];
@@ -252,11 +257,67 @@ sap.ui.define([
 				});
 			}
 		},
-		onUpsert: function(claimId) {
+		onUpsert: function(header) {
 			var that = this;
 			var items = this.getView().getModel("local").getProperty("/tableData");
 			var deleted = this.itemCrudMap.get("Delete");
 			var updated = this.itemCrudMap.get("Update");
+			var newItems = [];
+			var total = 0;
+			items.forEach(function(item) {
+				item.Createdate = item.Createdate;
+				if(deleted.has(item.ItemId)){
+					total-=item.ClaimAmount;
+				}
+				else if (updated.has(item.ItemId)) {
+					total+=item.ClaimAmount;
+					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
+						success: function(data) {
+							that.itemCrudMap.set("Update", new Set());
+							MessageToast.show("Update Success");
+							that.getView().byId("idonSave").setEnabled(false);
+							that.getView().byId("idonSubmit").setEnabled(true);
+						},
+						error: function(oError) {
+							MessageBox.error(JSON.parse(oError.responseText).error.message.value);
+							that.getView().byId("idonSave").setEnabled(true);
+							that.getView().byId("idonSubmit").setEnabled(false);
+						}
+					});
+				} else if (!item.ItemId) {
+					total+=item.ClaimAmount;
+					item.Claimid = header.Claimid;
+					if (item.Wagetype === "2509") {
+						item.Purpose = "";
+						item.Destination = "";
+					}
+					//var date = item.Createdate.split(".");
+					var claimDate = new Date();
+					claimDate.setTime(item.Createdate);
+					claimDate.setDate(claimDate.getDate() + 1);
+					if (item.To_Attachments.length > 0) {
+						delete item.To_Attachments[0].Stream;
+						item.To_Attachments[0].Content = btoa(item.To_Attachments[0].Content);
+					}
+					newItems.push(item);
+				}
+			});
+			var payload = header;
+			delete payload.CreatedOn;
+			payload.Total = total;
+			payload.To_Items = newItems;
+			that.oDataModel.create("/ClaimSet", payload, {
+				success: function(data) {
+					MessageToast.show("New Item Added");
+					that.getView().byId("idonSave").setEnabled(false);
+					that.getView().byId("idonSubmit").setEnabled(true);
+				},
+				error: function(oError) {
+					MessageBox.error(JSON.parse(oError.responseText).error.message.value);
+					that.getView().byId("idonSave").setEnabled(true);
+					that.getView().byId("idonSubmit").setEnabled(false);
+				}
+			});
 			deleted.forEach(function(item) {
 				that.getView().setBusy(true);
 				that.oDataModel.remove("/ClaimItemSet('" + item + "')", {
@@ -274,38 +335,6 @@ sap.ui.define([
 						that.getView().byId("idonSubmit").setEnabled(false);
 					}
 				});
-			});
-			items.forEach(function(item) {
-				item.Createdate = item.Createdate;
-				if (updated.has(item.ItemId)) {
-					that.oDataModel.update("/ClaimItemSet('" + item.ItemId + "')", item, {
-						success: function(data) {
-							that.itemCrudMap.set("Update", new Set());
-							MessageToast.show("Update Success");
-							that.getView().byId("idonSave").setEnabled(false);
-							that.getView().byId("idonSubmit").setEnabled(true);
-						},
-						error: function(oError) {
-							MessageBox.error(JSON.parse(oError.responseText).error.message.value);
-							that.getView().byId("idonSave").setEnabled(true);
-							that.getView().byId("idonSubmit").setEnabled(false);
-						}
-					});
-				} else if (!item.ItemId) {
-					item.Claimid = claimId;
-					that.oDataModel.create("/ClaimItemSet", item, {
-						success: function(data) {
-							MessageToast.show("New Item Added");
-							that.getView().byId("idonSave").setEnabled(false);
-							that.getView().byId("idonSubmit").setEnabled(true);
-						},
-						error: function(oError) {
-							MessageBox.error(JSON.parse(oError.responseText).error.message.value);
-							that.getView().byId("idonSave").setEnabled(true);
-							that.getView().byId("idonSubmit").setEnabled(false);
-						}
-					});
-				}
 			});
 		},
 		onSubmit: function() {
@@ -350,12 +379,12 @@ sap.ui.define([
 				var attach = attachs[0];
 				var oControl = that.photoPopup.getAggregation("content")[1];
 				that.img.Content = attach.Content;
-				if(attach.Stream === "" || attach.Stream === undefined){
+				if (attach.Stream === "" || attach.Stream === undefined) {
 					attach.Stream = that.img.Stream = that.formatter.convertPDFToUrl(attach.Content);
-				}else{
+				} else {
 					that.img.Stream = attach.Stream;
 				}
-				
+
 				oControl.setSource(that.img.Stream);
 			}
 		},
@@ -373,8 +402,8 @@ sap.ui.define([
 			if (!this.photoPopup) {
 				this.photoPopup = new sap.ui.xmlfragment("victoria.fragments.PhotoUploadDialog", this);
 			}
-			var oFileUploader = sap.ui.getCore().byId("idCoUploader");
-			oFileUploader.setValue("");
+			// var oFileUploader = sap.ui.getCore().byId("idCoUploader");
+			// oFileUploader.setValue("");
 			this.img = {};
 			this.photoPopup.close();
 			this.photoPopup.destroy();

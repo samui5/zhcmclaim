@@ -7,7 +7,7 @@
 		</headerContent>
 		<content>
 			<!--<Button text="Go To next" press="onNext"></Button>-->
-			<SearchField search="onSearch" ></SearchField>
+			<SearchField liveChange="onSearch" ></SearchField>
 			<List id="claims" mode="SingleSelectMaster" items="{
 							path : '/ClaimSet'
 			}" growing="true" growingThreshold="20" itemPress="onNextItem">
