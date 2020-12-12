@@ -1,0 +1,11 @@
+Description=New S/4HANA 2009
+Type=HTTP
+TrustAll=true
+Authentication=NoAuthentication
+Name=CFN
+ProxyType=Internet
+URL=http\://117.247.238.172\:8021
+WebIDEUsage=odata_abap,odata_gen,ui5_execute_abap,dev_abap
+WebIDESystem=CFN
+WebIDEEnabled=true
+sap-client=800

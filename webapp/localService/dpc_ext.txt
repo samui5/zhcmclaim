@@ -8,15 +8,21 @@ public section.
   constants C_W_COVERING type LGART value '2509' ##NO_TEXT.
   constants C_W_HARDSHIP type LGART value '2513' ##NO_TEXT.
 
+  methods /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_BEGIN
+    redefinition .
   methods /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CREATE_DEEP_ENTITY
     redefinition .
   methods /IWBEP/IF_MGW_APPL_SRV_RUNTIME~EXECUTE_ACTION
+    redefinition .
+  methods /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_END
     redefinition .
 protected section.
 
   methods ATTACHMENTSET_GET_ENTITY
     redefinition .
   methods ATTACHMENTSET_GET_ENTITYSET
+    redefinition .
+  methods CLAIMITEMSET_CREATE_ENTITY
     redefinition .
   methods CLAIMITEMSET_DELETE_ENTITY
     redefinition .
@@ -35,8 +41,6 @@ protected section.
   methods CLAIMSET_UPDATE_ENTITY
     redefinition .
   methods VALUEHELPSET_GET_ENTITYSET
-    redefinition .
-  methods CLAIMITEMSET_CREATE_ENTITY
     redefinition .
 private section.
 
@@ -148,6 +152,44 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
         e_username = data(lv_name)                 " Formatted Name of Employee or Applicant
     ).
     append value #( text = |{ lv_id } ({ lv_name })| ) to et_entityset.
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Public Method ZCL_ZHCM_CLAIM_DPC_EXT->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_BEGIN
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IT_OPERATION_INFO              TYPE        /IWBEP/T_MGW_OPERATION_INFO
+* | [<-->] CV_DEFER_MODE                  TYPE        XSDBOOLEAN(optional)
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_BEGIN.
+**try.
+*CALL METHOD SUPER->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_BEGIN
+*  EXPORTING
+*    IT_OPERATION_INFO =
+**  changing
+**    cv_defer_mode     =
+*    .
+**  catch /iwbep/cx_mgw_busi_exception.
+**  catch /iwbep/cx_mgw_tech_exception.
+**endtry.
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Public Method ZCL_ZHCM_CLAIM_DPC_EXT->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_END
+* +-------------------------------------------------------------------------------------------------+
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_END.
+**try.
+*CALL METHOD SUPER->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_END
+*    .
+**  catch /iwbep/cx_mgw_busi_exception.
+**  catch /iwbep/cx_mgw_tech_exception.
+**endtry.
   endmethod.
 
 
