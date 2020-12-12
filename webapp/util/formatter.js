@@ -93,7 +93,14 @@ sap.ui.define([],
 				} else {
 					return true;
 				}
+			},
+			attachBtnText : function(attachment){
+				return attachment.length > 0 ? "Attached" : "Attach";
+			},
+			attachBtnType : function(attachment){
+				return attachment.length > 0 ? "Accept" : "Reject";
 			}
+			
 		};
 	}
 );
