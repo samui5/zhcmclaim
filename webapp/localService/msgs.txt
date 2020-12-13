@@ -5,3 +5,4 @@
 004	A claim item of type &2 already exist for date &1 between &3 to &4
 005	A claim Item with Zero not allowed
 006	Attachment is mandatory for Hardship Type
+007	Missing property &1 in payload
