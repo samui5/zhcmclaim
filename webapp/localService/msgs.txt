@@ -6,3 +6,6 @@
 005	A claim Item with Zero not allowed
 006	Attachment is mandatory for Hardship Type
 007	Missing property &1 in payload
+
+**Create a SNRO - CHAR6 - ZSN_CLAIM		
+**Create Table Type ZTT_HCM_ITEMS type ZHCM_CLAIM_ITEM type
