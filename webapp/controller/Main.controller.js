@@ -462,9 +462,9 @@ sap.ui.define([
 		},
 		// close photo upload popup
 		handleClosePress: function(oEvent) {
-			if (!this.photoPopup) {
-				this.photoPopup = new sap.ui.xmlfragment("victoria.fragments.PhotoUploadDialog", this);
-			}
+			// if (!this.photoPopup) {
+			// 	this.photoPopup = new sap.ui.xmlfragment("victoria.fragments.PhotoUploadDialog", this);
+			// }
 			// var oFileUploader = sap.ui.getCore().byId("idCoUploader");
 			// oFileUploader.setValue("");
 			this.img = {};
