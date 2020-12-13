@@ -95,10 +95,20 @@ sap.ui.define([],
 				}
 			},
 			attachBtnText : function(attachment){
-				return attachment.length > 0 ? "Attached" : "Attach";
+				if(attachment){
+					return attachment.length > 0 ? "Attached" : "Attach";	
+				}else{
+					return "Attach";
+				}
+				
 			},
 			attachBtnType : function(attachment){
-				return attachment.length > 0 ? "Accept" : "Reject";
+				if(attachment){
+					return attachment.length > 0 ? "Accept" : "Reject";
+				}else{
+					return "Reject";
+				}
+				
 			}
 			
 		};
