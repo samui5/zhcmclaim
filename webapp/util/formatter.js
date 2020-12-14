@@ -12,13 +12,15 @@ sap.ui.define([],
 				};
 				return num === "" ? text["0"] : text[num];
 			},
-			convertPDFToUrl: function(vContent){
-				var decodedPdfContent = atob(vContent.replace("data:application/pdf;base64,",""));
+			convertPDFToUrl: function(vContent) {
+				var decodedPdfContent = atob(vContent.replace("data:application/pdf;base64,", ""));
 				var byteArray = new Uint8Array(decodedPdfContent.length);
-				for(var i=0; i<decodedPdfContent.length; i++){
-				    byteArray[i] = decodedPdfContent.charCodeAt(i);
+				for (var i = 0; i < decodedPdfContent.length; i++) {
+					byteArray[i] = decodedPdfContent.charCodeAt(i);
 				}
-				var blob = new Blob([byteArray.buffer], { type: 'application/pdf' });
+				var blob = new Blob([byteArray.buffer], {
+					type: 'application/pdf'
+				});
 				jQuery.sap.addUrlWhitelist("blob");
 				return URL.createObjectURL(blob);
 			},
@@ -48,7 +50,7 @@ sap.ui.define([],
 				return dd + '.' + mm + '.' + yyyy;
 			},
 			getSAPFormattedDate: function(newDate) {
-				if(newDate){
+				if (newDate) {
 					var dateObj = newDate;
 					dateObj.setDate(dateObj.getDate());
 					var dd = dateObj.getDate();
@@ -63,10 +65,10 @@ sap.ui.define([],
 					}
 					return dd + '.' + mm + '.' + yyyy;
 				}
-				
+
 			},
-			displaySAPDate: function(){
-				
+			displaySAPDate: function() {
+
 			},
 			statusIcon: function(num) {
 				var state = {
@@ -94,23 +96,29 @@ sap.ui.define([],
 					return true;
 				}
 			},
-			attachBtnText : function(attachment){
-				if(attachment){
-					return attachment.length > 0 ? "Attached" : "Attach";	
-				}else{
+			attachBtnText: function(attachment) {
+				if (attachment) {
+					return attachment.length > 0 ? "Attached" : "Attach";
+				} else {
 					return "Attach";
 				}
-				
+
 			},
-			attachBtnType : function(attachment){
-				if(attachment){
-					return attachment.length > 0 ? "Accept" : "Reject";
-				}else{
-					return "Reject";
+			attachBtnType: function(attachment) {
+				if (attachment.length>0 && attachment[0].Stream) {
+					return "Attention";
+				} else if(attachment.length>0) {
+					return "Accept";
 				}
-				
+				return "Reject";
+			},
+			enabledUploadBtn: function(attachment, status) {
+				if (attachment.length > 0 || status === "" || status === "0") {
+					return true;
+				}
+				return false;
 			}
-			
+
 		};
 	}
 );

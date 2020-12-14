@@ -94,7 +94,8 @@
 										state="{path:'local>Status', formatter : '.formatter.statusState'}"/>
 									<Input value="{local>ClaimAmount}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" liveChange="onLiveChange"/>
 									<Button icon="sap-icon://attachment" text="{path:'local>To_Attachments', formatter : '.formatter.attachBtnText'}"
-										type="{path:'local>To_Attachments', formatter : '.formatter.attachBtnType'}" press="onSelectPhoto"/>
+										type="{path:'local>To_Attachments', formatter : '.formatter.attachBtnType'}"
+										enabled="{parts : [{path:'local>To_Attachments'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledUploadBtn'}" press="onSelectPhoto"/>
 								</cells>
 							</ColumnListItem>
 						</items>
