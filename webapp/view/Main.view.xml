@@ -31,7 +31,7 @@
 							</Select>
 						</f:content>
 					</f:SimpleForm>
-					<Table items="{local>/tableData}" fixedLayout="false" noDataText="Add Items..." mode="MultiSelect">
+					<Table items="{local>/tableData}" alternateRowColors = "true" fixedLayout="false" noDataText="Add Items..."  mode="MultiSelect">
 						<headerToolbar>
 							<Toolbar>
 								<ToolbarSpacer/>
@@ -73,29 +73,29 @@
 						<items>
 							<ColumnListItem>
 								<cells>
-									<Select selectedKey="{local>Wagetype}" change="onLiveChange" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}">
+									<Select selectedKey="{local>Wagetype}" change="onLiveChange" enabled="{path:'local>Status', formatter : '.formatter.enabledItem'}">
 										<core:Item key="2509" text="Covering Forlift"/>
 										<core:Item key="2513" text="Hardship"/>
 									</Select>
 									<DatePicker dateValue="{path:'local>Createdate'}" displayFormat="dd.MM.yyyy" valueFormat="yyyyMMdd" change="onLiveChange"
-										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" minDate="{local>/date/minDate}"
+										enabled="{path:'local>Status', formatter : '.formatter.enabledItem'}" minDate="{local>/date/minDate}"
 										maxDate="{local>/date/maxDate}"/>
 									<TimePicker id="idST" value="{local>TimeStart}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="Start time"
-										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+										enabled="{path:'local>Status', formatter : '.formatter.enabledItem'}"/>
 									<TimePicker id="idET" value="{local>TimeEnd}" valueFormat="HH:mm" displayFormat="hh:mm a" change="onLiveChange" placeholder="End time"
-										enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"/>
+										enabled="{path:'local>Status', formatter : '.formatter.enabledItem'}"/>
 									<Input value="{local>Purpose}"
-										enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledWagetype'}"
+										enabled="{parts : [{path:'local>Wagetype'},{path:'local>Status'}], formatter : '.formatter.enabledWagetype'}"
 										liveChange="onLiveChange"/>
 									<Input value="{local>Destination}"
-										enabled="{parts : [{path:'local>Wagetype'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledWagetype'}"
+										enabled="{parts : [{path:'local>Wagetype'},{path:'local>Status'}], formatter : '.formatter.enabledWagetype'}"
 										liveChange="onLiveChange"/>
 									<ObjectStatus class="sapUiSmallMargin" icon="{path:'local>Status', formatter : '.formatter.statusIcon'}"
-										state="{path:'local>Status', formatter : '.formatter.statusState'}"/>
-									<Input value="{local>ClaimAmount}" enabled="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" liveChange="onLiveChange"/>
+										state="{path:'local>Status', formatter : '.formatter.statusState'}" tooltip="{parts : [{path:'local>Comments'},{path:'local>Status'}], formatter : '.formatter.comments'}"/>
+									<Input value="{local>ClaimAmount}" enabled="{path:'local>Status', formatter : '.formatter.enabledItem'}" liveChange="onLiveChange"/>
 									<Button icon="sap-icon://attachment" text="{path:'local>To_Attachments', formatter : '.formatter.attachBtnText'}"
 										type="{path:'local>To_Attachments', formatter : '.formatter.attachBtnType'}"
-										enabled="{parts : [{path:'local>To_Attachments'},{path:'local>/header/Docstat'}], formatter : '.formatter.enabledUploadBtn'}" press="onSelectPhoto"/>
+										enabled="{parts : [{path:'local>To_Attachments'},{path:'local>Status'}], formatter : '.formatter.enabledUploadBtn'}" press="onSelectPhoto"/>
 								</cells>
 							</ColumnListItem>
 						</items>

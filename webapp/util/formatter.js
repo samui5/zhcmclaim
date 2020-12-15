@@ -81,7 +81,7 @@ sap.ui.define([],
 				return state[num];
 			},
 			enabledItem: function(num) {
-				if (num === "" || num === "0") {
+				if (num === "" || num === "0" || num === "3") {
 					return true;
 				} else {
 					return false;
@@ -105,9 +105,9 @@ sap.ui.define([],
 
 			},
 			attachBtnType: function(attachment) {
-				if (attachment.length>0 && attachment[0].Stream) {
+				if (attachment.length > 0 && attachment[0].Stream) {
 					return "Attention";
-				} else if(attachment.length>0) {
+				} else if (attachment.length > 0) {
 					return "Accept";
 				}
 				return "Reject";
@@ -117,6 +117,19 @@ sap.ui.define([],
 					return true;
 				}
 				return false;
+			},
+			comments: function(comment, status) {
+				if (comment !== "") {
+					return comment;
+				} else {
+					var text = {
+						"0": "Draft",
+						"1": "Submitted",
+						"2": "Approved",
+						"3": "Rejected"
+					};
+					return status === "" ? text["0"] : text[status];
+				}
 			}
 
 		};

@@ -180,8 +180,8 @@ sap.ui.define([
 			this.total = 0;
 			for (var i = 0; i < items.length; i++) {
 				this.total += parseFloat(items[i].ClaimAmount);
-				if (parseFloat(items[i].ClaimAmount) === 0) {
-					MessageBox.alert("Claim amount can't be 0");
+				if (parseFloat(items[i].ClaimAmount) < 1) {
+					MessageBox.error("Claim amount must be greater than 0");
 					return;
 				}
 			}
@@ -308,7 +308,7 @@ sap.ui.define([
 							that.itemCrudMap.set("Delete", new Set());
 							that.itemCrudMap.set("Update", new Set());
 							that.itemCrudMap.set("Attachment", new Set());
-							MessageToast.show("Everything saved successfully");
+							MessageToast.show("Data has been saved successfully");
 						},
 						error: function(err) {
 							that.getView().setBusy(false);
