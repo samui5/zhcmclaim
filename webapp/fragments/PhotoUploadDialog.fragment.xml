@@ -18,7 +18,7 @@
 				<PDFViewer id="idCoPic" width="100%" height="500px"/>
 			</content>
 			<buttons>
-				<Button icon="sap-icon://accept" id="idCoUpload" press="handleUploadPress" text="OK" type="Emphasized" iconFirst="true" width="auto" enabled="true" visible="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"
+				<Button icon="sap-icon://accept" id="idCoUpload" press="handleUploadPress" text="Upload" type="Emphasized" iconFirst="true" width="auto" enabled="true" visible="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}"
 				  iconDensityAware="false" />
 		  	<Button icon="sap-icon://sys-cancel" id="idCoClose" press="handleClosePress" text="Close" type="Emphasized" iconFirst="true" width="auto" enabled="true" visible="true"
 					iconDensityAware="false"/>

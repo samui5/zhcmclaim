@@ -75,8 +75,8 @@ sap.ui.define([],
 					"": "sap-icon://edit",
 					"0": "sap-icon://edit",
 					"1": "sap-icon://message-success",
-					"2": "sap-icon://message-success",
-					"3": "sap-icon://message-error"
+					"2": "sap-icon://complete",
+					"3": "sap-icon://decline"
 				};
 				return state[num];
 			},
