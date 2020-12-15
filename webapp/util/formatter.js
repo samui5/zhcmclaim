@@ -12,6 +12,13 @@ sap.ui.define([],
 				};
 				return num === "" ? text["0"] : text[num];
 			},
+			currencyValue: function(sValue) {
+				if (!sValue) {
+					return "";
+				}
+
+				return parseFloat(sValue).toFixed(2);
+			},
 			convertPDFToUrl: function(vContent) {
 				var decodedPdfContent = atob(vContent.replace("data:application/pdf;base64,", ""));
 				var byteArray = new Uint8Array(decodedPdfContent.length);
