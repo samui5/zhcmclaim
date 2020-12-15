@@ -1,9 +1,9 @@
 <mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="hcm.claim.controller.Worklist"
 	xmlns:html="http://www.w3.org/1999/xhtml">
 	<Page title="My Claims">
-		<headerContent>
-			<Button icon="sap-icon://action" press="onNext"/>
-		</headerContent>
+		<!--<headerContent>-->
+		<!--	<Button icon="sap-icon://action" press="onNext"/>-->
+		<!--</headerContent>-->
 		<content>
 			<!--<Button text="Go To next" press="onNext"></Button>-->
 			<SearchField liveChange="onSearch"></SearchField>
