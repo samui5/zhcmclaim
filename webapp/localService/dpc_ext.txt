@@ -18,6 +18,8 @@ public section.
     redefinition .
 protected section.
 
+  methods ATTACHMENTSET_CREATE_ENTITY
+    redefinition .
   methods ATTACHMENTSET_GET_ENTITY
     redefinition .
   methods ATTACHMENTSET_GET_ENTITYSET
@@ -44,9 +46,10 @@ protected section.
     redefinition .
   methods VALUEHELPSET_GET_ENTITYSET
     redefinition .
-  methods ATTACHMENTSET_CREATE_ENTITY
-    redefinition .
 private section.
+
+  data V_BATCH_MODE type FLAG .
+  data VS_BATCH_MESSAGE like IF_T100_MESSAGE=>T100KEY .
 
   methods GET_CURRENT_USER
     exporting
@@ -80,19 +83,6 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_BEGIN.
-**try.
-*CALL METHOD SUPER->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_BEGIN
-*  EXPORTING
-*    IT_OPERATION_INFO =
-**  changing
-**    cv_defer_mode     =
-*    .
-**  catch /iwbep/cx_mgw_busi_exception.
-**  catch /iwbep/cx_mgw_tech_exception.
-**endtry.
-
-
-
 
   endmethod.
 
@@ -104,12 +94,19 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 * | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   method /IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_END.
-**try.
-*CALL METHOD SUPER->/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CHANGESET_END
-*    .
-**  catch /iwbep/cx_mgw_busi_exception.
-**  catch /iwbep/cx_mgw_tech_exception.
-**endtry.
+
+    TRY .
+
+    CATCH /iwbep/cx_mgw_busi_exception INTO data(lo_ex).
+      IF vs_batch_message is NOT INITIAL.
+            raise exception type /iwbep/cx_mgw_busi_exception
+                  exporting
+                    textid = vs_batch_message.
+      ENDIF.
+    ENDTRY.
+
+
+
   endmethod.
 
 
@@ -230,6 +227,7 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
     ls_deep-claimid = ls_header-claimid.
     ls_deep-claimno = ls_header-claimno.
     ls_deep-docstat = ls_header-docstat.
+    ls_deep-created_on = sy-datum.
     ls_deep-pernr = ls_header-pernr.
     ls_header-created_by = sy-uname.
     ls_header-created_on = sy-datum.
@@ -662,14 +660,18 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
     ).
 
 
-    if ls_item_update-status = 2 or ls_item_update-status = 3.
-      update zhcm_claim_item set status = @ls_item_update-status
+    if ls_item_update-status = 2 .
+      update zhcm_claim_item set status = @ls_item_update-status , comments = @ls_item_update-comments
       where item_id = @ls_key-value.
     else.
+      IF ls_item_update-status = 3 .
+        ls_item_update-status = 0.
+      ENDIF.
       update zhcm_claim_item set createdate = @ls_item_update-createdate ,
         wagetype = @ls_item_update-wagetype,
         time_start = @ls_item_update-time_start,
         time_end = @ls_item_update-time_end,
+        status = @ls_item_update-status,
         purpose = @ls_item_update-purpose,
         destination = @ls_item_update-destination,
         claim_amount = @ls_item_update-claim_amount,
@@ -886,6 +888,27 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
       if ls_item-wagetype = zcl_zhcm_claim_dpc_ext=>c_w_hardship.
         describe table ls_item-to_attachments.
         if sy-tfill = 0.
+*          IF i_claim_id <> ''.
+*            me->vs_batch_message = value #( msgid = 'ZHCM_CLAIM'
+*                                msgno = 006 ).
+*            RETURN.
+*          ENDIF.
+          data lv_target TYPE /IWBEP/SUP_MC_MESSAGE_TARGET .
+          lv_target = |/ClaimSet('{ i_claim_id }')|.
+          me->mo_context->get_message_container( )->add_message(
+            Exporting
+              iv_msg_type  = 'E'
+              iv_msg_id    = 'ZHCM_CLAIM'
+              iv_msg_number = '006'
+              iv_is_leading_message = abap_true
+              iv_add_to_response_header = abap_true
+              iv_message_target = lv_target
+              IV_IS_TRANSITION_MESSAGE = abap_true
+          ) .
+
+          raise exception type /iwbep/cx_mgw_busi_exception
+             exporting
+               message_container = me->mo_context->get_message_container( ).
           raise exception type /iwbep/cx_mgw_busi_exception
             exporting
               textid = value #( msgid = 'ZHCM_CLAIM'
