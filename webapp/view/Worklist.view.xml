@@ -10,7 +10,7 @@
 			<List id="claims" mode="SingleSelectMaster" items="{ path : '/ClaimSet' }" growing="true" growingThreshold="20" itemPress="onNextItem">
 				<items>
 					<ObjectListItem intro="Personnel No.: {Pernr}" title="Claim No.: {Claimno}"
-						number="{ path: 'Total', formatter: '.formatter.currencyValue' }" numberUnit="REM" numberState="Information" icon="sap-icon://sap-box"
+						number="Total: { path: 'Total', formatter: '.formatter.currencyValue' }" numberUnit="REM" numberState="Information" icon="sap-icon://sap-box"
 						type="Navigation">
 						<firstStatus>
 							<ObjectStatus text="{path : 'Docstat', formatter: '.formatter.statusText'}"
