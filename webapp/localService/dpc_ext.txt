@@ -664,9 +664,9 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
       update zhcm_claim_item set status = @ls_item_update-status , comments = @ls_item_update-comments
       where item_id = @ls_key-value.
     else.
-      IF ls_item_update-status = 3 .
-        ls_item_update-status = 0.
-      ENDIF.
+*      IF ls_item_update-status = 3 .
+*        ls_item_update-status = 0.
+*      ENDIF.
       update zhcm_claim_item set createdate = @ls_item_update-createdate ,
         wagetype = @ls_item_update-wagetype,
         time_start = @ls_item_update-time_start,
@@ -825,15 +825,29 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 *      and seqnr = @ls_key3-value
 *      .
 
+    select SINGLE docstat into @data(lv_stat) FROM zhcm_claim WHERE claimid = @ls_key-value.
+
     update zhcm_claim set docstat = @ls_update-docstat
       where claimid = @ls_key-value
       .
 
-    IF ls_update-docstat = '1'.
+    IF lv_stat = 0.
+      "When Header is draft and first time submit - change all items to submit
       update zhcm_claim_item set status = @ls_update-docstat
-      where claimid = @ls_key-value
-      .
+        where claimid = @ls_key-value
+        .
+    else.
+      "When a rejected item is submitted again - then we change the status to submitted for the rejected claims
+      select * from zhcm_claim_item INTO TABLE @DATA(itab) WHERE claimid = @ls_key-value and status = '3'.
+      LOOP AT itab INTO DATA(wa).
+          update zhcm_claim_item set status = @ls_update-docstat
+          where item_id = @wa-item_id
+          .
+      ENDLOOP.
     ENDIF.
+
+
+
 
 
 
