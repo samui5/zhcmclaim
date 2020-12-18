@@ -34,7 +34,7 @@ sap.ui.define([
 			if (path === "new") {
 				that.oLocalModel.setProperty("/header", {
 					"Pernr": "{unloaded}",
-					"Claimno": "{unassigned}",
+					"Claimno": "New Claim",
 					"Claimid": "",
 					"Docstat": ""
 				});
@@ -278,6 +278,7 @@ sap.ui.define([
 					that.getView().byId("idonSubmit").setEnabled(true);
 					that.getView().setBusy(false);
 					MessageToast.show("Data has been saved successfully");
+					// that.onRefreshClaim(header.Claimid);
 					that.itemCrudMap.set("Delete", new Set());
 					that.itemCrudMap.set("Update", new Set());
 					that.itemCrudMap.set("Attachment", new Set());
@@ -437,7 +438,10 @@ sap.ui.define([
 		// Start of changes  by Surya 06.12.2020
 		onSelectPhoto: function(oEvent) {
 			var that = this;
-			that.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", that);
+			if (!this.photoPopup) {
+				this.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", this);
+			}
+			// that.photoPopup = new sap.ui.xmlfragment("hcm.claim.fragments.PhotoUploadDialog", that);
 			that.getView().addDependent(that.photoPopup);
 			that.photoPopup.open();
 			// get the index of the row for which the attachment button has been clicked
@@ -471,7 +475,7 @@ sap.ui.define([
 			}
 			this.img = {};
 			this.photoPopup.close();
-			this.photoPopup.destroy();
+			// this.photoPopup.destroy();
 			this.itemPath = "";
 			this.getView().byId("idonSave").setEnabled(true);
 			this.getView().byId("idonSubmit").setEnabled(false);
@@ -483,9 +487,32 @@ sap.ui.define([
 			// }
 			// var oFileUploader = sap.ui.getCore().byId("idCoUploader");
 			// oFileUploader.setValue("");
+			oEvent.getSource().getParent().getAggregation("content")[0].setValue();
+			oEvent.getSource().getParent().getAggregation("content")[1].setSource();
 			this.img = {};
 			this.photoPopup.close();
-			this.photoPopup.destroy();
+			// this.photoPopup.destroy();
+		},
+		handleDeletePress: function(oEvent) {
+			var that = this;
+			var item = this.getView().getModel("local").getProperty(this.itemPath);
+			if (item.To_Attachments.length > 0 && item.To_Attachments[0].AttachId) {
+				this.oDataModel.remove("/AttachmentSet('" + item.To_Attachments[0].AttachId + "')", {
+					success: function() {
+						MessageToast.show("Attachment Deleted Successfully");
+						that.img = {};
+						that.getView().getModel("local").setProperty(that.itemPath + "/To_Attachments", []);
+					},
+					error: function() {
+						MessageBox.error("Error");
+					}
+				});
+			} else {
+				this.img = {};
+				this.getView().getModel("local").setProperty(this.itemPath + "/To_Attachments", []);
+			}
+			oEvent.getSource().getParent().getAggregation("content")[0].setValue();
+			oEvent.getSource().getParent().getAggregation("content")[1].setSource();
 		},
 		_onFileUploaderFileSizeExceed: function() {
 			MessageBox.error("File Size should not exceed 5 MB");

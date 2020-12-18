@@ -1,7 +1,7 @@
 {	
 	"header" : {
 		"Pernr": "{unloaded}",
-		"Claimno": "{unassigned}",
+		"Claimno": "New Claim",
 		"Claimid": "",
 		"Docstat": ""
 	},
