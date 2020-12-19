@@ -12,7 +12,7 @@
 			<Button icon="sap-icon://accept" id="idCoUpload" press="handleUploadPress" text="Upload" type="Accept" iconFirst="true" width="auto"
 				enabled="true" visible="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" iconDensityAware="false"/>
 			<Button icon="sap-icon://delete" id="idCoDelete" press="handleDeletePress" text="Delete" type="Reject" iconFirst="true" width="auto"
-				enabled="true" visible="true" iconDensityAware="false"/>
+				enabled="true" visible="{path:'local>/header/Docstat', formatter : '.formatter.enabledItem'}" iconDensityAware="false"/>
 			<Button icon="sap-icon://sys-cancel" id="idCoClose" press="handleClosePress" text="Close" type="Neutral" iconFirst="true" width="auto"
 				enabled="true" visible="true" iconDensityAware="false"/>
 		</buttons>
