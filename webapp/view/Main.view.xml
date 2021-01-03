@@ -104,8 +104,8 @@
 				<footer>
 					<Toolbar>
 						<ToolbarSpacer/>
-						<Button id="idonSave" type="Emphasized" text="{i18n>Save}" press="onSave" enabled="true"></Button>
-						<Button id="idonSubmit" type="Emphasized" text="{i18n>Submit}" press="onSubmit" enabled="false"></Button>
+						<Button id="idonSave" type="Accept" text="{i18n>Save}" press="onSave" enabled="true"></Button>
+						<Button id="idonSubmit" type="Attention" text="{i18n>Submit}" press="onSubmit" enabled="false"></Button>
 						<Button id="idonClear" type="Emphasized" text="Clear" press="onClear" enabled="true"></Button>
 					</Toolbar>
 				</footer>
