@@ -46,11 +46,18 @@ protected section.
     redefinition .
   methods VALUEHELPSET_GET_ENTITYSET
     redefinition .
+  methods ATTACHMENTSET_DELETE_ENTITY
+    redefinition .
 private section.
 
   data V_BATCH_MODE type FLAG .
   data VS_BATCH_MESSAGE like IF_T100_MESSAGE=>T100KEY .
 
+  methods GET_USER_NAME
+    importing
+      value(I_PERNR) type D3PERNR
+    exporting
+      !E_USERNAME type EMNAM .
   methods GET_CURRENT_USER
     exporting
       value(E_PERNR) type D3PERNR
@@ -786,11 +793,29 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
 * +--------------------------------------------------------------------------------------</SIGNATURE>
   method claimset_get_entityset.
 
+    data lv_name TYPE EMNAM.
+    data lv_pernr TYPE D3PERNR.
     READ TABLE it_filter_select_options INTO data(ls_f) INDEX 1.
     READ TABLE ls_f-select_options INTO data(ls_f2) INDEX 1.
 
     data(lv_fil) =  |%{ ls_f2-low }%|.
-    select * from zhcm_claim into corresponding fields of table @et_entityset WHERE claimno like @lv_fil.
+
+    LOOP AT et_entityset ASSIGNING FIELD-SYMBOL(<FS>).
+      ME->get_user_name(
+        EXPORTING
+          i_pernr    = <FS>-pernr
+        IMPORTING
+          e_username = lv_name
+      ).
+      <FS>-name = lv_name.
+    ENDLOOP.
+    me->get_current_user(
+      IMPORTING
+        e_pernr    = lv_pernr
+*        e_username =
+    ).
+
+    select * from zhcm_claim into corresponding fields of table @et_entityset WHERE claimno like @lv_fil and pernr = @lv_pernr.
 
   endmethod.
 
@@ -1135,6 +1160,43 @@ CLASS ZCL_ZHCM_CLAIM_DPC_EXT IMPLEMENTATION.
     MOVE-CORRESPONDING ls_entity to ls_insert.
     modify zhcm_claim_attch FROM ls_insert.
     MOVE-CORRESPONDING ls_entity to er_entity.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Protected Method ZCL_ZHCM_CLAIM_DPC_EXT->ATTACHMENTSET_DELETE_ENTITY
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] IV_ENTITY_NAME                 TYPE        STRING
+* | [--->] IV_ENTITY_SET_NAME             TYPE        STRING
+* | [--->] IV_SOURCE_NAME                 TYPE        STRING
+* | [--->] IT_KEY_TAB                     TYPE        /IWBEP/T_MGW_NAME_VALUE_PAIR
+* | [--->] IO_TECH_REQUEST_CONTEXT        TYPE REF TO /IWBEP/IF_MGW_REQ_ENTITY_D(optional)
+* | [--->] IT_NAVIGATION_PATH             TYPE        /IWBEP/T_MGW_NAVIGATION_PATH
+* | [!CX!] /IWBEP/CX_MGW_BUSI_EXCEPTION
+* | [!CX!] /IWBEP/CX_MGW_TECH_EXCEPTION
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method ATTACHMENTSET_DELETE_ENTITY.
+
+    READ TABLE it_key_tab INTO data(ls_key) INDEX 1.
+
+    delete from zhcm_claim_attch where attach_id = ls_key-value.
+
+  endmethod.
+
+
+* <SIGNATURE>---------------------------------------------------------------------------------------+
+* | Instance Private Method ZCL_ZHCM_CLAIM_DPC_EXT->GET_USER_NAME
+* +-------------------------------------------------------------------------------------------------+
+* | [--->] I_PERNR                        TYPE        D3PERNR
+* | [<---] E_USERNAME                     TYPE        EMNAM
+* +--------------------------------------------------------------------------------------</SIGNATURE>
+  method GET_USER_NAME.
+
+
+    select single ename from pa0001 into @e_username
+       where pernr = @i_pernr.
+
 
   endmethod.
 ENDCLASS.
