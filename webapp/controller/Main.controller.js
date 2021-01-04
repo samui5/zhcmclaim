@@ -193,7 +193,7 @@ sap.ui.define([
 					"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
 					"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
 					"Docstat": header.Docstat, //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
-					"Total": this.total, //blank
+					"Total": this.total.toFixed(2), //blank
 					"To_Items": []
 				};
 				var itemsPayload = [];
@@ -222,7 +222,7 @@ sap.ui.define([
 						"Status": item.Status, //blank
 						"Purpose": item.Purpose, //screen - table
 						"Destination": item.Destination, //screen - table
-						"ClaimAmount": item.ClaimAmount, //screen - table
+						"ClaimAmount": parseFloat(item.ClaimAmount).toFixed(2), //screen - table
 						"To_Attachments": item.To_Attachments
 					});
 				});
