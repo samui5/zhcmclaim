@@ -193,7 +193,7 @@ sap.ui.define([
 					"Cmonth": this.getView().byId('idMonth').getSelectedKey(), //dropdown
 					"Cyear": this.getView().byId('idYear').getSelectedKey(), //dropdown
 					"Docstat": header.Docstat, //0 - Draft  , Submit button 0-->1, In case of Submit pura screen lock
-					"Total": this.total.toFixed(2), //blank
+					"Total": parseFloat(this.total.toFixed(2)), //blank
 					"To_Items": []
 				};
 				var itemsPayload = [];
